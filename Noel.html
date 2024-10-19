@@ -1,84 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compte à Rebours avant Noël</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bienvenue</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/png" href="Images/TheStars.png">
+    </head>
     <style>
-
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #141414;
-            text-align: center;
-        }
-
-
-        body::before {
-            content: '';
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Ccircle cx="10" cy="20" r="2" fill="%23fff" /%3E%3Ccircle cx="25" cy="70" r="1" fill="%23fff" /%3E%3Ccircle cx="80" cy="10" r="1.5" fill="%23fff" /%3E%3Ccircle cx="50" cy="50" r="2" fill="%23fff" /%3E%3Ccircle cx="30" cy="30" r="1" fill="%23fff" /%3E%3Ccircle cx="60" cy="80" r="1.5" fill="%23fff" /%3E%3Ccircle cx="90" cy="40" r="2" fill="%23fff" /%3E%3C/svg%3E');
-            pointer-events: none;
-            z-index: -1;
-            animation: starsAnimation 5s infinite ease-in-out;
-        }
-
-        .game-container {
-            background-color: #6f94ea;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 10px;
-            margin: 20px 0;
-        }
-        .cell {
-            width: 100px;
-            height: 100px;
-            border: 2px solid #000000;
+            color: #201919;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #6f94ea;
-            cursor: pointer;
-        }
-        .cell img {
-            width: 80px;
-            height: 80px;
-        }
-        .selected {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-        #status {
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            border: none;
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .hidden {
-            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
         h1 {
@@ -95,7 +35,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
-</head>
 <body>
     <h1>Compte à Rebours avant Noël</h1>
     <div id="countdown"></div>
@@ -103,7 +42,7 @@
     <script>
         function updateCountdown() {
             const now = new Date().getTime();
-            const christmas = new Date('December 25, 2024 00:00:00').getTime(); // Année à changer si nécessaire
+            const christmas = new Date('December 25, 2024 00:00:00').getTime();
 
             const distance = christmas - now;
 
@@ -122,75 +61,68 @@
         }
 
         const interval = setInterval(updateCountdown, 1000);
-        updateCountdown(); // Appel initial
+        updateCountdown(); 
     </script>
-</body>
-</html>
-<head></head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Site</title>
-    <style>
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #333;
-            color: rgb(223, 17, 17);
-            text-align: center;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .date-link {
-            position: absolute; 
-            left: 10px;
-            margin: 10px;
-            font-size: 16px;
-            display: inline-block;
-            padding: 10px 20px;
-            margin-top: 10px;
-            font-size: 16px;
-            text-decoration: none;
-            background-color: #007BFF; 
-            color: white;
-            border-radius: 50px;
-        }
-
-        .date-link:hover {
-            background-color: #0056b3;
-        }
-
-        .profile-pic {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .pseudo {
-            font-size: 18px;
-            font-weight: bold;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
+        <script>
+            // Script pour le dropdown
+            function toggleOptions(optionId) {
+                const optionsDiv = document.getElementById(optionId);
+                if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
+                    optionsDiv.style.display = "block";
+                } else {
+                    optionsDiv.style.display = "none";
+                }
+            }
+        </script>
+<style>
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
     </style>
-</head>
-<body>
-    <footer>
-        <a href="index.html" class="date-link">Retour Acceuil</a>
-        <a href="https://www.twitch.tv/le_bisounours_">
-            <img src="Images/Bisou.jpg" alt="https://www.twitch.tv/le_bisounours_" class="profile-pic">
-            <span class="pseudo">💜ℓє_вɨsღµиღµʀs💜</span>
-        </a>
-    </footer>    
-
-</body>
-</html>
+    <body>
+        <footer>
+            <a href="index.html" class="date-link">Acceuil</a>
+            <a href="LeSite.html" class="date-link">Le Calendrier..</a>
+    
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="https://www.twitch.tv/le_bisounours_" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+    
+            <a href="Noel.html" class="second-button">Décompte</a>
+            <body>
+    
+                <div class="dropdown">
+                    <button class="button" onclick="toggleOptions('options')">Jeux</button>
+                    <div id="options" class="options">
+                        <div class="option"><a href="Morpion.html">Morpion</a></div>
+                        <div class="option"><a href="Bientot.html">A venir..</a></div>
+                    </div>
+                </div>
+            
+                <script>
+                    function toggleOptions(optionId) {
+                        const optionsDiv = document.getElementById(optionId);
+                        if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
+                            optionsDiv.style.display = "block";
+                        } else {
+                            optionsDiv.style.display = "none";
+                        }
+                    }
+                </script>
+        </footer>  
+    </body>
+    </html>
