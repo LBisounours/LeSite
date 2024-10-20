@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Morpion ❌</title>
-        <link rel="stylesheet" href="style.css">
-        <link rel="icon" type="image/png" href="Images/TheStars.png">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morpion ❌</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
 </head>
 <body>
-    
-    <audio id="background-music" src="Images/son.mp3" loop></audio>
+
+    <audio id="background-music" src="Images/son2.mp3" loop></audio>
 
     <script>
         const audio = document.getElementById('background-music');
@@ -25,199 +25,190 @@
         // Écouteur d'événement pour jouer la musique lors du premier clic
         document.body.addEventListener('click', playMusic);
     </script>
-</body>
-<body>
-<div class="game-container">
-    <div id="playerSetup">
-        <h1>Morpion</h1>
-        <label for="player1">Nom du Joueur 1 : </label>
-        <input type="text" id="player1" placeholder="Joueur 1"><br><br>
-        <label for="player2">Nom du Joueur 2 : </label>
-        <input type="text" id="player2" placeholder="Joueur 2"><br><br>
-        <button id="startGameButton">Commencer la partie</button>
-    </div>
 
-    <div id="gameArea" class="hidden">
-        <p id="status"></p>
-
-        <div class="grid">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
+    <div class="game-container">
+        <div id="playerSetup">
+            <h1>Morpion</h1>
+            <label for="player1">Nom du Joueur 1 : </label>
+            <input type="text" id="player1" placeholder="Joueur 1"><br><br>
+            <label for="player2">Nom du Joueur 2 : </label>
+            <input type="text" id="player2" placeholder="Joueur 2"><br><br>
+            <button id="startGameButton">Commencer la partie</button>
         </div>
 
-        <button id="resetButton">Réinitialiser le jeu</button>
+        <div id="gameArea" class="hidden">
+            <p id="status"></p>
+
+            <div class="grid">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+
+            <button id="resetButton">Réinitialiser le jeu</button>
+        </div>
     </div>
-</div>
 
-<script>
-    const grid = document.querySelectorAll('.cell');
-    const statusDisplay = document.getElementById('status');
-    const resetButton = document.getElementById('resetButton');
-    const startGameButton = document.getElementById('startGameButton');
-    const playerSetup = document.getElementById('playerSetup');
-    const gameArea = document.getElementById('gameArea');
-    
-    let player1Name = 'Joueur 1';
-    let player2Name = 'Joueur 2';
+    <script>
+        const grid = document.querySelectorAll('.cell');
+        const statusDisplay = document.getElementById('status');
+        const resetButton = document.getElementById('resetButton');
+        const startGameButton = document.getElementById('startGameButton');
+        const playerSetup = document.getElementById('playerSetup');
+        const gameArea = document.getElementById('gameArea');
 
-    const player1 = {
-        image: 'Images/pion1.png',
-        positions: []
-    };
+        let player1Name = 'Joueur 1';
+        let player2Name = 'Joueur 2';
 
-    const player2 = {
-        image: 'Images/pion2.png',
-        positions: []
-    };
+        const player1 = {
+            image: 'Images/pion1.png',
+            positions: []
+        };
 
-    let currentPlayer;
-    let movePhase = false;
-    let selectedCell = null;
+        const player2 = {
+            image: 'Images/pion2.png',
+            positions: []
+        };
 
-    startGameButton.addEventListener('click', function() {
-        player1Name = document.getElementById('player1').value || 'Joueur 1';
-        player2Name = document.getElementById('player2').value || 'Joueur 2';
+        let currentPlayer;
+        let movePhase = false;
+        let selectedCell = null;
 
-        currentPlayer = Math.random() < 0.5 ? 1 : 2;
+        startGameButton.addEventListener('click', function() {
+            player1Name = document.getElementById('player1').value || 'Joueur 1';
+            player2Name = document.getElementById('player2').value || 'Joueur 2';
 
-        playerSetup.classList.add('hidden');
-        gameArea.classList.remove('hidden');
+            currentPlayer = Math.random() < 0.5 ? 1 : 2;
 
-        updateStatus();
-    });
+            playerSetup.classList.add('hidden');
+            gameArea.classList.remove('hidden');
 
-    function checkWin(playerPositions) {
-        const winPatterns = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ];
+            updateStatus();
+        });
 
-        return winPatterns.some(pattern => pattern.every(index => playerPositions.includes(index)));
-    }
+        function checkWin(playerPositions) {
+            const winPatterns = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
 
-    function updateStatus() {
-        if (movePhase) {
-            statusDisplay.textContent = `${currentPlayer === 1 ? player1Name : player2Name} doit déplacer un pion.`;
-        } else {
-            statusDisplay.textContent = `${currentPlayer === 1 ? player1Name : player2Name} doit poser un pion.`;
+            return winPatterns.some(pattern => pattern.every(index => playerPositions.includes(index)));
         }
-    }
 
-    grid.forEach(cell => {
-        cell.addEventListener('click', function () {
-            const cellIndex = parseInt(this.getAttribute('data-index'));
+        function updateStatus() {
+            if (movePhase) {
+                statusDisplay.textContent = `${currentPlayer === 1 ? player1Name : player2Name} doit déplacer un pion.`;
+            } else {
+                statusDisplay.textContent = `${currentPlayer === 1 ? player1Name : player2Name} doit poser un pion.`;
+            }
+        }
 
-            if (!movePhase) {
-                if (currentPlayer === 1 && player1.positions.length < 3 && !player2.positions.includes(cellIndex) && !player1.positions.includes(cellIndex)) {
-                    this.innerHTML = `<img src="${player1.image}" alt="Pion 1">`;
-                    player1.positions.push(cellIndex);
-                    if (checkWin(player1.positions)) {
-                        statusDisplay.textContent = `${player1Name} a gagné !`;
-                        disableGrid();
-                    } else {
-                        currentPlayer = 2;
-                        if (player1.positions.length === 3 && player2.positions.length === 3) {
-                            movePhase = true;
-                        }
-                        updateStatus();
-                    }
-                } else if (currentPlayer === 2 && player2.positions.length < 3 && !player1.positions.includes(cellIndex) && !player2.positions.includes(cellIndex)) {
-                    this.innerHTML = `<img src="${player2.image}" alt="Pion 2">`;
-                    player2.positions.push(cellIndex);
-                    if (checkWin(player2.positions)) {
-                        statusDisplay.textContent = `${player2Name} a gagné !`;
-                        disableGrid();
-                    } else {
-                        currentPlayer = 1;
-                        if (player1.positions.length === 3 && player2.positions.length === 3) {
-                            movePhase = true;
-                        }
-                        updateStatus();
-                    }
-                }
-            } 
-            else {
-                if (selectedCell) {
-                    selectedCell.classList.remove('selected');
-                }
+        grid.forEach(cell => {
+            cell.addEventListener('click', function () {
+                const cellIndex = parseInt(this.getAttribute('data-index'));
 
-                if (currentPlayer === 1 && player1.positions.includes(cellIndex)) {
-                    this.classList.add('selected');
-                    selectedCell = this;
-                } else if (currentPlayer === 2 && player2.positions.includes(cellIndex)) {
-                    this.classList.add('selected');
-                    selectedCell = this;
-                } else if (selectedCell && !player1.positions.includes(cellIndex) && !player2.positions.includes(cellIndex)) {
-                    const previousIndex = parseInt(selectedCell.getAttribute('data-index'));
-                    selectedCell.innerHTML = '';
-                    selectedCell.classList.remove('selected');
-                    this.innerHTML = `<img src="${currentPlayer === 1 ? player1.image : player2.image}" alt="Pion ${currentPlayer}">`;
-
-                    if (currentPlayer === 1) {
-                        player1.positions = player1.positions.map(pos => pos === previousIndex ? cellIndex : pos);
+                if (!movePhase) {
+                    if (currentPlayer === 1 && player1.positions.length < 3 && !player2.positions.includes(cellIndex) && !player1.positions.includes(cellIndex)) {
+                        this.innerHTML = `<img src="${player1.image}" alt="Pion 1">`;
+                        player1.positions.push(cellIndex);
                         if (checkWin(player1.positions)) {
                             statusDisplay.textContent = `${player1Name} a gagné !`;
                             disableGrid();
+                        } else {
+                            currentPlayer = 2;
+                            if (player1.positions.length === 3 && player2.positions.length === 3) {
+                                movePhase = true;
+                            }
+                            updateStatus();
                         }
-                    } else {
-                        player2.positions = player2.positions.map(pos => pos === previousIndex ? cellIndex : pos);
+                    } else if (currentPlayer === 2 && player2.positions.length < 3 && !player1.positions.includes(cellIndex) && !player2.positions.includes(cellIndex)) {
+                        this.innerHTML = `<img src="${player2.image}" alt="Pion 2">`;
+                        player2.positions.push(cellIndex);
                         if (checkWin(player2.positions)) {
                             statusDisplay.textContent = `${player2Name} a gagné !`;
                             disableGrid();
+                        } else {
+                            currentPlayer = 1;
+                            if (player1.positions.length === 3 && player2.positions.length === 3) {
+                                movePhase = true;
+                            }
+                            updateStatus();
                         }
                     }
+                } 
+                else {
+                    if (selectedCell) {
+                        selectedCell.classList.remove('selected');
+                    }
 
-                    currentPlayer = currentPlayer === 1 ? 2 : 1;
-                    selectedCell = null;
-                    updateStatus();
+                    if (currentPlayer === 1 && player1.positions.includes(cellIndex)) {
+                        this.classList.add('selected');
+                        selectedCell = this;
+                    } else if (currentPlayer === 2 && player2.positions.includes(cellIndex)) {
+                        this.classList.add('selected');
+                        selectedCell = this;
+                    } else if (selectedCell && !player1.positions.includes(cellIndex) && !player2.positions.includes(cellIndex)) {
+                        const previousIndex = parseInt(selectedCell.getAttribute('data-index'));
+                        selectedCell.innerHTML = '';
+                        selectedCell.classList.remove('selected');
+                        this.innerHTML = `<img src="${currentPlayer === 1 ? player1.image : player2.image}" alt="Pion ${currentPlayer}">`;
+
+                        if (currentPlayer === 1) {
+                            player1.positions = player1.positions.map(pos => pos === previousIndex ? cellIndex : pos);
+                            // Vérifie la victoire après le déplacement
+                            if (checkWin(player1.positions)) {
+                                statusDisplay.textContent = `${player1Name} a gagné !`;
+                                disableGrid();
+                            }
+                        } else {
+                            player2.positions = player2.positions.map(pos => pos === previousIndex ? cellIndex : pos);
+                            // Vérifie la victoire après le déplacement
+                            if (checkWin(player2.positions)) {
+                                statusDisplay.textContent = `${player2Name} a gagné !`;
+                                disableGrid();
+                            }
+                        }
+
+                        // Vérifie si aucun joueur n'a gagné après le déplacement avant de changer de joueur
+                        currentPlayer = currentPlayer === 1 ? 2 : 1;
+                        selectedCell = null;
+                        updateStatus();
+                    }
                 }
-            }
+            });
         });
-    });
 
-    function disableGrid() {
-        grid.forEach(cell => cell.style.pointerEvents = 'none');
-    }
-
-    resetButton.addEventListener('click', function () {
-        grid.forEach(cell => {
-            cell.innerHTML = '';
-            cell.style.pointerEvents = 'auto';
-            cell.classList.remove('selected');
-        });
-        player1.positions = [];
-        player2.positions = [];
-        movePhase = false;
-        selectedCell = null;
-        currentPlayer = Math.random() < 0.5 ? 1 : 2;
-        updateStatus();
-    });
-
-</script>
-<script>
-    // Script pour le dropdown
-    function toggleOptions(optionId) {
-        const optionsDiv = document.getElementById(optionId);
-        if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
-            optionsDiv.style.display = "block";
-        } else {
-            optionsDiv.style.display = "none";
+        function disableGrid() {
+            grid.forEach(cell => cell.style.pointerEvents = 'none');
         }
-    }
-</script>
+
+        resetButton.addEventListener('click', function () {
+            grid.forEach(cell => {
+                cell.innerHTML = '';
+                cell.style.pointerEvents = 'auto';
+                cell.classList.remove('selected');
+            });
+            player1.positions = [];
+            player2.positions = [];
+            movePhase = false;
+            selectedCell = null;
+            currentPlayer = Math.random() < 0.5 ? 1 : 2;
+            updateStatus();
+        });
+    </script>
+
 <style>
     .profile-pics {
         margin-left: 320px;
@@ -232,10 +223,11 @@
         font-size: 22px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        position: relative; /* Permet d'utiliser left */
+        position: relative;
         top: -14px
     }
     </style>
+    
     <body>
         <footer>
             <a href="index.html" class="date-link">Acceuil</a>
