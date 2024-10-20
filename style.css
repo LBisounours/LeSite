@@ -194,7 +194,7 @@ a {
 }
 
 .option {
-    margin: 5px 0;
+    margin: 8px 2;
 }
 
 .option a {
@@ -303,4 +303,44 @@ td:hover .arrow {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.dropdown2 {
+    position: relative;
+    margin: 10px 0;
+}
+
+.button2 {
+    margin-left: auto; 
+    margin-right: 10px;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-decoration: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+}
+
+.options2 {
+    display: none; 
+    border: 1px solid #007BFF;
+    border-radius: 50px;
+    padding: 10px;
+    margin-top: -10px;
+    background-color: #f0f8ff;
+    position: absolute;
+    bottom: 100%; 
+    left: 5; 
+    z-index: 1; 
+}
+
+.option2 {
+    margin: 6px 0;
+}
+
+.option2 a {
+    text-decoration: none;
+    color: #007BFF;
 }
