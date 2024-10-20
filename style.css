@@ -173,11 +173,6 @@ a {
     text-decoration: none;
 }
 
-.dropdown {
-    position: relative;
-    margin: 10px 0;
-}
-
 .button {
     margin-left: auto; 
     margin-right: 10px;
@@ -200,7 +195,7 @@ a {
     background-color: #f0f8ff;
     position: absolute;
     bottom: 100%; 
-    left: 0; 
+    left: -20px; 
     z-index: 1; 
 }
 
@@ -324,6 +319,11 @@ td:hover .arrow {
     align-items: center;
 }
 
+.dropdown {
+    position: relative;
+    margin: 10px 0;
+}
+
 .dropdown2 {
     position: relative;
     margin: 10px 0;
@@ -356,12 +356,15 @@ td:hover .arrow {
 }
 
 .option2 {
-    margin: 6px 0;
+    position: relative;
+    margin: 6px;
 }
 
 .option2 a {
+    position: relative;
     text-decoration: none;
     color: #007BFF;
+    margin: 6px;
 }
 
 .scoreboard {

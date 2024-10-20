@@ -95,15 +95,14 @@
     <script>
         const audio = document.getElementById('background-music');
 
-        // Fonction pour jouer la musique
         function playMusic() {
             audio.play().catch(error => {
                 console.error('Erreur lors de la lecture de la musique:', error);
             });
-            document.body.removeEventListener('click', playMusic); // Empêche de jouer plusieurs fois
+            document.body.removeEventListener('click', playMusic); 
         }
 
-        // Écouteur d'événement pour jouer la musique lors du premier clic
+
         document.body.addEventListener('click', playMusic);
     </script>
     
@@ -334,6 +333,8 @@
                             <div class="option"><a href="Morpion.html">Morpion</a></div>
                             <div class="option"><a href="Puissance4.html">Puissance4</a></div>
                             <div class="option"><a href="memories.html">Memory</a></div>
+                            <div class="option"><a href="pokemon.html">PokemonGo</a></div>
+                            <div class="option"><a href="clicker.html">PokeCliker</a></div>
                             <div class="option"><a href="Bientot.html">A venir..</a></div>
                         </div>
                     </div>
