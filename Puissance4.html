@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Puissance 4 🔴🟡</title>
-        <link rel="stylesheet" href="style.css">
-        <link rel="icon" type="image/png" href="Images/TheStars.png">
-</head>
-<style>
-    buttons {
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puissance 4 🔴🟡</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        buttons {
         background-color: #432088;
         color: #fff;
         position: relative;
@@ -20,41 +19,56 @@
         margin-left: -200px;
         width: 100px;
         height: 100px;
-        left: -50px;
-        top: -300px;
+        left: -105px;
+        top: -350px;
     } 
 
-    buttonS:hover {
+    buttons:hover {
         background-color: #45a049;
     }
-</style>
+
+        #scoreboard {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+            margin-left: 20px;
+            padding: 10px;
+            border: 1px solid black ;
+            border-radius: 5px;
+            background-color: #6f94ea;;
+            position: relative;
+        }
+    </style>
+</head>
 <body>
-    
     <audio id="background-music" src="Images/son2.mp3" loop></audio>
 
     <script>
         const audio = document.getElementById('background-music');
 
-        // Fonction pour jouer la musique
         function playMusic() {
             audio.play().catch(error => {
                 console.error('Erreur lors de la lecture de la musique:', error);
             });
-            document.body.removeEventListener('click', playMusic); // Empêche de jouer plusieurs fois
+            document.body.removeEventListener('click', playMusic);
         }
 
-        // Écouteur d'événement pour jouer la musique lors du premier clic
         document.body.addEventListener('click', playMusic);
     </script>
-</body>
-<body>
+
     <div id="start-screen">
         <input type="text" id="player1" placeholder="Pseudo Joueur 1" required>
         <input type="text" id="player2" placeholder="Pseudo Joueur 2" required>
         <button onclick="startGame()">Lancer le jeu</button>
     </div>
 
-    <div id="game-container">
+    <div id="game-container" style="display: none;">
+        <div id="scoreboard">
+            <div id="score-player1">Joueur 1 (${player1}) : 0</div>
+            <div id="score-player2">Joueur 2 (${player2}) : 0</div>
+        </div>
         <table>
             <tr>
                 <td id="cell-0-0" onclick="placeToken(0)"><img class="arrow" src="Images/Fleche.png" alt="Flèche" /></td>
@@ -119,6 +133,7 @@
     <script>
         let currentPlayer = '';
         let player1, player2;
+        let score1 = 0, score2 = 0; 
         const columns = [5, 5, 5, 5, 5, 5, 5];
 
         function startGame() {
@@ -130,7 +145,7 @@
             }
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
-
+            updateScoreboard();
 
             currentPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
             updateTurnMessage();
@@ -159,6 +174,7 @@
                 const winner = currentPlayer === 'red' ? player1 : player2;
                 document.getElementById('winner-message').innerText = `${winner} a gagné !`;
                 document.getElementById('winner-message').classList.remove('hidden');
+                updateScore(currentPlayer);
                 disableGame();
                 return;
             }
@@ -235,72 +251,81 @@
                 column.onclick = () => placeToken(i); 
             }
         }
+
+        function updateScore(winner) {
+            if (winner === 'red') {
+                score1++;
+            } else {
+                score2++;
+            }
+            updateScoreboard();
+        }
+
+        function updateScoreboard() {
+            document.getElementById('score-player1').innerText = `${player1} : ${score1}`;
+            document.getElementById('score-player2').innerText = `${player2} : ${score2}`;
+        }
     </script>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Site</title>
-</head>
 <style>
-.profile-pics {
-    margin-left: 320px;
-    width: 50px;
-    height: 50px;
-    border-radius: 100%;
-    margin-right: 5px;
-}
-
-.pseudos {
-    margin-right: 420px;
-    font-size: 22px;
-    font-weight: bold;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    position: relative;
-    top: -14px
-}
-</style>
-
-<body>
-    <footer>
-        <a href="index.html" class="date-link">Acceuil</a>
-        <a href="LeSite.html" class="date-link">Le Calendrier..</a>
-
-        <div class="profile-container">
-            <a href="https://www.twitch.tv/le_bisounours_">
-                <img src="Images/Bisou.jpg" alt="https://www.twitch.tv/le_bisounours_" class="profile-pics">
-                <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
-            </a>
-        </div>
-
-        <div class="dropdown2">
-            <button class="button2" onclick="toggleOptions('options2')">Autre</button>
-            <div id="options2" class="options">
-                <div class="option2"><a href="Noel.html">Décompte</a></div>
-                <div class="option2"><a href="musique.html">Musique</a></div>
-                <div class="option2"><a href="Bientot.html">A venir..</a></div>
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+    </style>
+    
+    <body>
+        <footer>
+            <a href="index.html" class="date-link">Acceuil</a>
+            <a href="LeSite.html" class="date-link">Le Calendrier..</a>
+    
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="https://www.twitch.tv/le_bisounours_" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
             </div>
-        </div>
-
-            <div class="dropdown">
-                <button class="button" onclick="toggleOptions('options')">Jeux</button>
-                <div id="options" class="options">
-                    <div class="option"><a href="Morpion.html">Morpion</a></div>
-                    <div class="option"><a href="Puissance4.html">Puissance4</a></div>
-                    <div class="option"><a href="Bientot.html">A venir..</a></div>
+    
+            <div class="dropdown2">
+                <button class="button2" onclick="toggleOptions('options2')">Autre</button>
+                <div id="options2" class="options">
+                    <div class="option2"><a href="Noel.html">Décompte</a></div>
+                    <div class="option2"><a href="musique.html">Musique</a></div>
+                    <div class="option2"><a href="Bientot.html">A venir..</a></div>
                 </div>
             </div>
-        
-            <script>
-                function toggleOptions(optionId) {
-                    const optionsDiv = document.getElementById(optionId);
-                    if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
-                        optionsDiv.style.display = "block";
-                    } else {
-                        optionsDiv.style.display = "none";
+    
+                <div class="dropdown">
+                    <button class="button" onclick="toggleOptions('options')">Jeux</button>
+                    <div id="options" class="options">
+                        <div class="option"><a href="Morpion.html">Morpion</a></div>
+                        <div class="option"><a href="Puissance4.html">Puissance4</a></div>
+                        <div class="option"><a href="Bientot.html">A venir..</a></div>
+                    </div>
+                </div>
+            
+                <script>
+                    function toggleOptions(optionId) {
+                        const optionsDiv = document.getElementById(optionId);
+                        if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
+                            optionsDiv.style.display = "block";
+                        } else {
+                            optionsDiv.style.display = "none";
+                        }
                     }
-                }
-            </script>
-    </footer>  
-</body>
-</html>
+                </script>
+        </footer>  
+    </body>
+    </html>

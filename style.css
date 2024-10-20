@@ -261,6 +261,7 @@ table {
     border-collapse: collapse;
     margin-bottom: 20px;
     background-color: #333;
+    position: relative; /* Permet d'utiliser left */
 }
 
 td {
@@ -283,18 +284,18 @@ td {
 }
 
 .token.red {
-    background-image: url('Images/jeton1.png'); /* Jeton rouge */
-    background-size: cover; /* Adapter l'image à la taille */
+    background-image: url('Images/jeton1.png');
+    background-size: cover; 
 }
 
 .token.yellow {
-    background-image: url('Images/jeton2.png'); /* Jeton jaune */
-    background-size: cover; /* Adapter l'image à la taille */
+    background-image: url('Images/jeton2.png'); 
+    background-size: cover;
 }
 
 .arrow {
     position: absolute;
-    top: -60px; /* Positionner au-dessus de la grille */
+    top: -60px;
     left: 50%;
     transform: translateX(-50%);
     display: none;
@@ -305,9 +306,16 @@ td:hover .arrow {
 }
 
 #winner-message, #turn-message {
+    border-radius: 50px;
+    width: 50%;
+    padding: 10px;
+    background-color: #6f94ea;
+    position: relative; /* Permet d'utiliser left */
+    top: -400px;
+    left: -390px;
     font-size: 24px;
     margin-top: 20px;
-    text-align: center; /* Centrer le message */
+    text-align: center;
 }
 
 #start-screen {
@@ -354,4 +362,15 @@ td:hover .arrow {
 .option2 a {
     text-decoration: none;
     color: #007BFF;
+}
+
+.scoreboard {
+    margin-left: 20px;
+    padding: 10px;
+    border: 1px solid black ;
+    border-radius: 5px;
+    background-color: #6f94ea;
+    position: relative; /* Permet d'utiliser left */
+    right: -400px;
+    top: -400px;
 }

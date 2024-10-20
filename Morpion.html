@@ -6,6 +6,37 @@
     <title>Morpion ❌</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        .game-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .selected {
+            border: 2px dashed #ff0000;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -50,8 +81,12 @@
                 <div class="cell" data-index="7"></div>
                 <div class="cell" data-index="8"></div>
             </div>
-
             <button id="resetButton">Réinitialiser le jeu</button>
+            <div class="scoreboard">
+                <h2>Tableau des Scores</h2>
+                <p id="scorePlayer2">Joueur 1 : <span id="score1">0</span></p>
+                <p id="scorePlayer2">Joueur 2 : <span id="score2">0</span></p>
+            </div>
         </div>
     </div>
 
@@ -80,6 +115,9 @@
         let movePhase = false;
         let selectedCell = null;
 
+        let score1 = 0;
+        let score2 = 0;
+
         startGameButton.addEventListener('click', function() {
             player1Name = document.getElementById('player1').value || 'Joueur 1';
             player2Name = document.getElementById('player2').value || 'Joueur 2';
@@ -107,6 +145,16 @@
             return winPatterns.some(pattern => pattern.every(index => playerPositions.includes(index)));
         }
 
+        function updateScore(winner) {
+            if (winner === 1) {
+                score1++;
+                document.getElementById('score1').textContent = score1;
+            } else {
+                score2++;
+                document.getElementById('score2').textContent = score2;
+            }
+        }
+
         function updateStatus() {
             if (movePhase) {
                 statusDisplay.textContent = `${currentPlayer === 1 ? player1Name : player2Name} doit déplacer un pion.`;
@@ -125,6 +173,7 @@
                         player1.positions.push(cellIndex);
                         if (checkWin(player1.positions)) {
                             statusDisplay.textContent = `${player1Name} a gagné !`;
+                            updateScore(1); // Met à jour le score du joueur 1
                             disableGrid();
                         } else {
                             currentPlayer = 2;
@@ -138,6 +187,7 @@
                         player2.positions.push(cellIndex);
                         if (checkWin(player2.positions)) {
                             statusDisplay.textContent = `${player2Name} a gagné !`;
+                            updateScore(2); // Met à jour le score du joueur 2
                             disableGrid();
                         } else {
                             currentPlayer = 1;
@@ -167,48 +217,48 @@
 
                         if (currentPlayer === 1) {
                             player1.positions = player1.positions.map(pos => pos === previousIndex ? cellIndex : pos);
-                            // Vérifie la victoire après le déplacement
                             if (checkWin(player1.positions)) {
                                 statusDisplay.textContent = `${player1Name} a gagné !`;
+                                updateScore(1); // Met à jour le score du joueur 1
                                 disableGrid();
                             }
                         } else {
                             player2.positions = player2.positions.map(pos => pos === previousIndex ? cellIndex : pos);
-                            // Vérifie la victoire après le déplacement
                             if (checkWin(player2.positions)) {
                                 statusDisplay.textContent = `${player2Name} a gagné !`;
+                                updateScore(2); // Met à jour le score du joueur 2
                                 disableGrid();
                             }
                         }
 
-                        // Vérifie si aucun joueur n'a gagné après le déplacement avant de changer de joueur
-                        currentPlayer = currentPlayer === 1 ? 2 : 1;
                         selectedCell = null;
+                        currentPlayer = currentPlayer === 1 ? 2 : 1;
                         updateStatus();
                     }
                 }
             });
         });
 
-        function disableGrid() {
-            grid.forEach(cell => cell.style.pointerEvents = 'none');
-        }
-
-        resetButton.addEventListener('click', function () {
+        resetButton.addEventListener('click', function() {
             grid.forEach(cell => {
                 cell.innerHTML = '';
-                cell.style.pointerEvents = 'auto';
                 cell.classList.remove('selected');
             });
             player1.positions = [];
             player2.positions = [];
+            currentPlayer = Math.random() < 0.5 ? 1 : 2;
             movePhase = false;
             selectedCell = null;
-            currentPlayer = Math.random() < 0.5 ? 1 : 2;
+            statusDisplay.textContent = '';
             updateStatus();
         });
-    </script>
 
+        function disableGrid() {
+            grid.forEach(cell => {
+                cell.removeEventListener('click', this);
+            });
+        }
+    </script>
 <style>
     .profile-pics {
         margin-left: 320px;
