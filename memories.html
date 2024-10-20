@@ -90,6 +90,22 @@
             width: 80%;
         }
     </style>
+    <audio id="background-music" src="Images/son2.mp3" loop></audio>
+
+    <script>
+        const audio = document.getElementById('background-music');
+
+        // Fonction pour jouer la musique
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic); // Empêche de jouer plusieurs fois
+        }
+
+        // Écouteur d'événement pour jouer la musique lors du premier clic
+        document.body.addEventListener('click', playMusic);
+    </script>
     
 </head>
 
