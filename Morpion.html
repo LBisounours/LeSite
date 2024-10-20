@@ -8,6 +8,25 @@
         <link rel="icon" type="image/png" href="Images/TheStars.png">
 </head>
 <body>
+    
+    <audio id="background-music" src="Images/son.mp3" loop></audio>
+
+    <script>
+        const audio = document.getElementById('background-music');
+
+        // Fonction pour jouer la musique
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic); // Empêche de jouer plusieurs fois
+        }
+
+        // Écouteur d'événement pour jouer la musique lors du premier clic
+        document.body.addEventListener('click', playMusic);
+    </script>
+</body>
+<body>
 <div class="game-container">
     <div id="playerSetup">
         <h1>Morpion</h1>
@@ -213,6 +232,8 @@
         font-size: 22px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative; /* Permet d'utiliser left */
+        top: -14px
     }
     </style>
     <body>
@@ -234,6 +255,7 @@
                     <button class="button" onclick="toggleOptions('options')">Jeux</button>
                     <div id="options" class="options">
                         <div class="option"><a href="Morpion.html">Morpion</a></div>
+                        <div class="option"><a href="Puissance4.html">Puissance4</a></div>
                         <div class="option"><a href="Bientot.html">A venir..</a></div>
                     </div>
                 </div>
