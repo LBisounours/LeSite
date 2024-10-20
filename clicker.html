@@ -53,7 +53,7 @@
         }
         img.pokeball {
             cursor: pointer;
-            width: 150px; /* Ajustez la taille si nécessaire */
+            width: 150px;
         }
     </style>
 </head>
@@ -69,24 +69,21 @@
     <div class="shop-section">
         <h2>Magasin de Pokémon</h2>
         <div id="pokemon-shop">
-            <!-- Les éléments du magasin seront ajoutés ici via JavaScript -->
         </div>
     </div>
     
 
     <script>
-        // Variables du jeu
         let points = 0;
         let cps = 0;
-        let pokeballLevel = 1; // 1 = Pokéball, 2 = Superball, etc.
-        let clickValue = 1; // Valeur de clic pour la Pokéball de base
-        let pokemonsOwned = {}; // Compte le nombre de chaque Pokémon possédé
+        let pokeballLevel = 1; 
+        let clickValue = 1; 
+        let pokemonsOwned = {};
         let cpsInterval;
 
-        // Tableau des Pokémon par niveau de Pokéball
         const pokemonShop = {
             1: [
-                { name: 'Magicarpe', cost: 11, cps: 10000000000, image: 'Images/Pokemon/magicarpe.png' },
+                { name: 'Magicarpe', cost: 11, cps: 1, image: 'Images/Pokemon/magicarpe.png' },
                 { name: 'Salamèche', cost: 50, cps: 5, image: 'Images/Pokemon/salameche.png' },
                 { name: 'Bulbizarre', cost: 100, cps: 10, image: 'Images/Pokemon/bulbizard.png' },
                 { name: 'Carapuce', cost: 500, cps: 50, image: 'Images/Pokemon/carapuce.png' }
@@ -135,7 +132,6 @@
             ],
         };
 
-        // Configuration des Pokéballs et seuils
         const pokeballs = [
             { threshold: 10000, image: 'Images/Pokemon/safariball.png' },
             { threshold: 100000, image: 'Images/Pokemon/superball.png' },
@@ -146,7 +142,6 @@
             { threshold: 10000000000, image: 'Images/Pokemon/Bisouball.png' },
         ];
 
-        // Initialisation du jeu
         function initGame() {
             updatePoints();
             updateCPS();
@@ -154,7 +149,6 @@
             startCPS();
         }
 
-        // Mise à jour des points et CPS
         function updatePoints() {
             document.getElementById('points').innerText = points;
         }
@@ -167,43 +161,37 @@
             document.getElementById('cps').innerText = totalCps;
         }
 
-        // Fonction de clic sur la Pokéball
         function clickPokeball() {
-            points += clickValue; // Augmente les points selon la valeur de clic
+            points += clickValue; 
             updatePoints();
 
-            // Vérifiez si le joueur atteint un nouveau palier de Pokéball
             for (let i = 0; i < pokeballs.length; i++) {
                 if (points >= pokeballs[i].threshold && pokeballLevel <= i + 1) {
-                    pokeballLevel = i + 2; // Passer au niveau supérieur
-                    clickValue *= 2; // Multiplie la valeur de clic par 2
-                    document.getElementById('pokeball-image').src = pokeballs[i].image; // Change d'image de Pokéball
+                    pokeballLevel = i + 2;
+                    clickValue *= 2;
+                    document.getElementById('pokeball-image').src = pokeballs[i].image; 
                     updatePokemonShop();
                     break;
                 }
             }
         }
 
-        // Démarrer le CPS
         function startCPS() {
             cpsInterval = setInterval(() => {
-                points += cps; // Ajoute le CPS aux points chaque seconde
+                points += cps;
                 updatePoints();
             }, 1000);
         }
 
-        // Mise à jour du magasin de Pokémon
         function updatePokemonShop() {
             const shopDiv = document.getElementById('pokemon-shop');
-            shopDiv.innerHTML = ''; // Vider le contenu actuel
+            shopDiv.innerHTML = ''; 
 
-            // Boucle à travers chaque niveau de Pokéball
             for (let level = 1; level <= pokeballLevel; level++) {
                 pokemonShop[level].forEach(pokemon => {
                     const itemDiv = document.createElement('div');
                     itemDiv.classList.add('pokemon-item');
 
-                    // Si le Pokémon a déjà été acheté, on affiche le nombre possédé
                     const count = pokemonsOwned[pokemon.name]?.count || 0;
 
                     itemDiv.innerHTML = `
@@ -218,13 +206,11 @@
             }
         }
 
-        // Fonction d'achat de Pokémon
         function buyPokemon(name, cost, cpsValue) {
             if (points >= cost) {
                 points -= cost;
                 cps += cpsValue;
 
-                // Augmenter le nombre de Pokémon possédés
                 if (!pokemonsOwned[name]) {
                     pokemonsOwned[name] = { count: 0, cps: cpsValue };
                 }
@@ -238,7 +224,6 @@
             }
         }
 
-        // Démarre le jeu
         initGame();
     </script>
 <style>
@@ -255,7 +240,7 @@
         font-size: 22px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        position: relative; /* Permet d'utiliser left */
+        position: relative;
         top: -14px
     }
     </style>
@@ -321,4 +306,3 @@
     </script>
     </body>
     </html>
-    
