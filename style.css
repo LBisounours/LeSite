@@ -116,6 +116,17 @@ footer {
     border-radius: 50px;
 }
 
+.date-link2 {
+    margin-left: 10px; 
+    margin-right: auto;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-decoration: none;
+    background-color: #432088;
+    color: white;
+    border-radius: 50px;
+}
+
 .date-link:hover {
     background-color: #0056b3;
 }
