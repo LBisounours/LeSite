@@ -98,7 +98,7 @@
 
         const pokemonShop = {
             1: [
-                { name: 'Magicarpe', baseCost: 11, cps: 10000000000, image: 'Images/Pokemon/magicarpe.png' },
+                { name: 'Magicarpe', baseCost: 11, cps: 1, image: 'Images/Pokemon/magicarpe.png' },
                 { name: 'Salamèche', baseCost: 50, cps: 5, image: 'Images/Pokemon/salameche.png' },
                 { name: 'Bulbizarre', baseCost: 100, cps: 10, image: 'Images/Pokemon/bulbizard.png' },
                 { name: 'Carapuce', baseCost: 500, cps: 50, image: 'Images/Pokemon/carapuce.png' }
@@ -170,7 +170,7 @@
         }
 
         function updateCPS() {
-            let totalCps = cps;
+            let totalCps = 0;
             for (let pokemon in pokemonsOwned) {
                 totalCps += pokemonsOwned[pokemon].count * pokemonsOwned[pokemon].cps;
             }
