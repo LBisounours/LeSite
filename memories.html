@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="Images/TheStars.png">
     <style>
         #start-screen {
-            margin-bottom: 20px;
+            margin-bottom: 100px;
         }
 
         #game-container {
@@ -45,6 +45,7 @@
         .card .back {
             background-color: #5a5b5a;
             border-radius: 8px;
+            display: block; /* Le dos est visible par défaut */
         }
 
         .flipped {
@@ -122,11 +123,20 @@
             <option value="moyen">Moyen (20 paires)</option>
             <option value="difficile">Difficile (30 paires)</option>
         </select>
+        <label for="theme">Thème des cartes :</label>
+        <select id="theme">
+            <option value="Memo1">Pokémon</option>
+            <option value="Memo2">Jeux Vidéo</option>
+            <option value="Memo3">Fortnite</option>
+            <option value="Memo4">Anime</option>
+            <option value="Memo5">Film/Série</option>
+            <option value="Memo6">Tout</option>
+        </select>
         <button onclick="startGame()">Lancer la partie</button>
     </div>
 
     <div id="game-container" style="display:none;">
-        <h2 id="current-player">ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤC'est le tour de <span></span></h2>
+        <h2 id="current-player">ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤC'est le tour de <span></span></h2>
         <button id="reset-button" onclick="resetGame()">Recommencer la partie</button>
         <div id="game-board"></div>
         <div id="score-board"></div>
@@ -145,12 +155,8 @@
         function togglePlayerOptions() {
             const mode = document.getElementById('mode').value;
             const playerOptions = document.getElementById('player-options');
-            if (mode === 'multi') {
-                playerOptions.style.display = 'block';
-                showPlayerNames();
-            } else {
-                playerOptions.style.display = 'none';
-            }
+            playerOptions.style.display = mode === 'multi' ? 'block' : 'none';
+            if (mode === 'multi') showPlayerNames();
         }
 
         function showPlayerNames() {
@@ -166,31 +172,20 @@
         function startGame() {
             const mode = document.getElementById('mode').value;
             const difficulty = document.getElementById('difficulty').value;
+            const theme = document.getElementById('theme').value;
 
-            if (difficulty === 'facile') {
-                totalPairs = 10;
-            } else if (difficulty === 'moyen') {
-                totalPairs = 20;
-            } else if (difficulty === 'difficile') {
-                totalPairs = 30;
-            }
+            totalPairs = difficulty === 'facile' ? 10 : difficulty === 'moyen' ? 20 : 30;
 
-            if (mode === 'multi') {
-                const playerCount = document.getElementById('player-count').value;
-                players = [];
-                for (let i = 0; i < playerCount; i++) {
-                    players.push(document.getElementById(`player${i}`).value || `Joueur ${i + 1}`);
-                }
-            } else {
-                players = ['Solo'];
-            }
+            players = mode === 'multi' ? Array.from({ length: document.getElementById('player-count').value }, (_, i) => {
+                return document.getElementById(`player${i}`).value || `Joueur ${i + 1}`;
+            }) : ['Solo'];
 
             scores = new Array(players.length).fill(0);
             currentPlayer = 0;
             pairsFound = 0;
             matchedPairs = [];
 
-            shuffleCards();
+            shuffleCards(theme);
             displayGameBoard();
             displayScoreBoard();
             updatePlayerTurn();
@@ -204,10 +199,22 @@
             document.getElementById('game-container').style.display = 'none';
         }
 
-        function shuffleCards() {
+        function shuffleCards(theme) {
+            // Remplacer le nombre d'images par le nombre réel d'images dans chaque dossier
+            const themeCardCounts = {
+                Memo1: 63, //Pokemon
+                Memo2: 3, // Jeux
+                Memo3: 0, // Fortnite
+                Memo4: 57, // Anime
+                Memo5: 8, // Série/film/dessinanimé
+                Memo6: 45, //Tout
+            };
+
+            const maxCards = themeCardCounts[theme] || 0;
             const availableImages = [];
-            for (let i = 1; i <= 71; i++) {
-                availableImages.push(`Images/Memo/mem${i}.png`);
+
+            for (let i = 1; i <= maxCards; i++) {
+                availableImages.push(`Images/${theme}/mem${i}.png`);
             }
 
             const selectedImages = [];
@@ -220,72 +227,59 @@
             }
 
             cards = [];
-            for (let i = 0; i < selectedImages.length; i++) {
-                cards.push(selectedImages[i]);
-                cards.push(selectedImages[i]);
-            }
-            cards.sort(() => 0.5 - Math.random());
+            selectedImages.forEach(image => {
+                cards.push(image, image); // Ajoute chaque image deux fois pour former des paires
+            });
+            cards.sort(() => 0.5 - Math.random()); // Mélange les cartes
         }
 
         function displayGameBoard() {
             const gameBoard = document.getElementById('game-board');
             gameBoard.innerHTML = '';
-            for (let i = 0; i < cards.length; i++) {
-                gameBoard.innerHTML += `<div class="card" data-index="${i}" onclick="flipCard(this)">
-                                          <img src="Images/Memo/back.png" class="back">
-                                          <img src="${cards[i]}" class="front" style="display:none;">
+            cards.forEach((card, index) => {
+                gameBoard.innerHTML += `<div class="card" data-index="${index}" onclick="flipCard(this)">
+                                          <img src="Images/back.png" class="back">
+                                          <img src="${card}" class="front" style="display:none;">
                                         </div>`;
-            }
+            });
         }
 
         function displayScoreBoard() {
             const scoreBoard = document.getElementById('score-board');
             scoreBoard.innerHTML = '<h3>Tableau des scores</h3>';
             players.forEach((player, index) => {
-                scoreBoard.innerHTML += `<p>${player} : <span id="score-${index}">0</span> paires trouvées</p>`;
+                scoreBoard.innerHTML += `<p>${player}: ${scores[index]} paires trouvées</p>`;
             });
         }
 
         function updatePlayerTurn() {
-            const currentPlayerElement = document.getElementById('current-player').querySelector('span');
-            currentPlayerElement.textContent = players[currentPlayer];
+            const currentPlayerDisplay = document.getElementById('current-player').querySelector('span');
+            currentPlayerDisplay.textContent = players[currentPlayer];
         }
 
         function flipCard(card) {
-            const index = card.getAttribute('data-index');
-            if (matchedPairs.includes(index) || card.classList.contains('flipped') || isChecking) {
-                return;
-            }
-
+            if (isChecking || card.classList.contains('flipped')) return;
             card.classList.add('flipped');
+            const index = card.getAttribute('data-index');
             card.querySelector('.front').style.display = 'block';
             card.querySelector('.back').style.display = 'none';
 
-            const flippedCards = document.querySelectorAll('.flipped:not(.matched)');
-
-            if (flippedCards.length === 2) {
+            if (matchedPairs.length === 0) {
+                matchedPairs.push(index);
+            } else {
                 isChecking = true;
-                setTimeout(() => {
-                    checkMatch(flippedCards[0], flippedCards[1]);
-                }, 1000);
+                setTimeout(() => checkMatch(card, matchedPairs.pop()), 1000);
             }
         }
 
-        function checkMatch(card1, card2) {
-            const index1 = card1.getAttribute('data-index');
-            const index2 = card2.getAttribute('data-index');
-
-            if (cards[index1] === cards[index2]) {
-                matchedPairs.push(index1, index2);
+        function checkMatch(card1, index1) {
+            const card2 = document.querySelector(`.card[data-index='${index1}']`);
+            if (card1.querySelector('.front').src === card2.querySelector('.front').src) {
                 scores[currentPlayer]++;
                 pairsFound++;
-                document.getElementById(`score-${currentPlayer}`).textContent = scores[currentPlayer];
-
-                card1.classList.add('matched');
-                card2.classList.add('matched');
-
+                displayScoreBoard();
                 if (pairsFound === totalPairs) {
-                    setTimeout(() => alert(`${players[currentPlayer]} a gagné !`), 100);
+                    alert(`Partie terminée ! ${players[currentPlayer]} a gagné !`);
                     resetGame();
                 }
             } else {
@@ -296,10 +290,9 @@
                 card2.querySelector('.front').style.display = 'none';
                 card2.querySelector('.back').style.display = 'block';
             }
-
-            isChecking = false;
             currentPlayer = (currentPlayer + 1) % players.length;
             updatePlayerTurn();
+            isChecking = false;
         }
     </script>
 <style>
