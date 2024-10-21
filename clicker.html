@@ -8,7 +8,7 @@
         <link rel="icon" type="image/png" href="Images/TheStars.png">
     <style>
         body {
-            background-image: url('Images/background.png'); /* Assurez-vous que l'image est dans le bon dossier */
+            background-image: url('Images/background.png');
             background-color: #2c3e50;
             color: white;
             font-family: Arial, sans-serif;
@@ -68,8 +68,7 @@
     </div>
     <div class="shop-section">
         <h2>Magasin de Pokémon</h2>
-        <div id="pokemon-shop">
-        </div>
+        <div id="pokemon-shop"></div>
     </div>
     
 
@@ -83,53 +82,18 @@
 
         const pokemonShop = {
             1: [
-                { name: 'Magicarpe', cost: 11, cps: 1, image: 'Images/Pokemon/magicarpe.png' },
-                { name: 'Salamèche', cost: 50, cps: 5, image: 'Images/Pokemon/salameche.png' },
-                { name: 'Bulbizarre', cost: 100, cps: 10, image: 'Images/Pokemon/bulbizard.png' },
-                { name: 'Carapuce', cost: 500, cps: 50, image: 'Images/Pokemon/carapuce.png' }
+                { name: 'Magicarpe', baseCost: 11, cps: 1, image: 'Images/Pokemon/magicarpe.png' },
+                { name: 'Salamèche', baseCost: 50, cps: 5, image: 'Images/Pokemon/salameche.png' },
+                { name: 'Bulbizarre', baseCost: 100, cps: 10, image: 'Images/Pokemon/bulbizard.png' },
+                { name: 'Carapuce', baseCost: 500, cps: 50, image: 'Images/Pokemon/carapuce.png' }
             ],
             2: [
-                { name: 'Pikachu', cost: 1000, cps: 75, image: 'Images/Pokemon/pikachu.png' },
-                { name: 'Tiplouf', cost: 1500, cps: 25, image: 'Images/Pokemon/tiplouf.png' },
-                { name: 'Rondoudou', cost: 2000, cps: 30, image: 'Images/Pokemon/rondoudou.png' },
-                { name: 'Goupilou', cost: 2500, cps: 40, image: 'Images/Pokemon/evolie.png' }
-            ],
-            3: [
-                { name: 'Goupix', cost: 10000, cps: 150, image: 'Images/Pokemon/goupix.png' },
-                { name: 'Minidraco', cost: 12000, cps: 120, image: 'Images/Pokemon/minidraco.png' },
-                { name: 'Sabelette', cost: 15000, cps: 250, image: 'Images/Pokemon/sabelette.png' },
-                { name: 'Lixy', cost: 20000, cps: 300, image: 'Images/Pokemon/lixy.png' }
-            ],
-            4: [
-                { name: 'Togepi', cost: 50000, cps: 500, image: 'Images/Pokemon/togepi.png' },
-                { name: 'Lucario', cost: 70000, cps: 600, image: 'Images/Pokemon/lucario.png' },
-                { name: 'Gardevoir', cost: 90000, cps: 700, image: 'Images/Pokemon/gardevoir.png' },
-                { name: 'Mimiqui', cost: 120000, cps: 800, image: 'Images/Pokemon/mimiqui.png' }
-            ],
-            5: [
-                { name: 'Exctoplasma', cost: 150000, cps: 1000, image: 'Images/Pokemon/Ectoplasma.png' },
-                { name: 'Pharamp', cost: 200000, cps: 1200, image: 'Images/Pokemon/Pharamp.png' },
-                { name: 'Oh-oh', cost: 250000, cps: 1400, image: 'Images/Pokemon/ohoh.png' },
-                { name: 'Jirachi', cost: 300000, cps: 1600, image: 'Images/Pokemon/jirachi.png' }
-            ],
-            6: [
-                { name: 'Mewtwo', cost: 500000, cps: 2000, image: 'Images/Pokemon/mew.png' },
-                { name: 'Darkrai', cost: 600000, cps: 2200, image: 'Images/Pokemon/darkrai.png' },
-                { name: 'Zygarde', cost: 700000, cps: 2500, image: 'Images/Pokemon/zygarde.png' },
-                { name: 'Solgaleo', cost: 800000, cps: 2800, image: 'Images/Pokemon/solgaleo.png' }
-            ],
-            7: [
-                { name: 'Dracolosse', cost: 1000000, cps: 3000, image: 'Images/Pokemon/Dracolosse.png' },
-                { name: 'Groudon', cost: 1200000, cps: 3500, image: 'Images/Pokemon/groudon.png' },
-                { name: 'Dialga', cost: 1500000, cps: 4000, image: 'Images/Pokemon/dialga.png' },
-                { name: 'Rechiram', cost: 1800000, cps: 4500, image: 'Images/Pokemon/rechiram.png' }
-            ],
-            8: [
-                { name: 'Arceus', cost: 2500000, cps: 5000, image: 'Images/Pokemon/arceus.png' },
-                { name: 'Hoopa', cost: 3000000, cps: 5500, image: 'Images/Pokemon/hoopa.png' },
-                { name: 'Rayquaza', cost: 3500000, cps: 6000, image: 'Images/Pokemon/rayquaza.png' },
-                { name: 'Zéroïd', cost: 4000000, cps: 7000, image: 'Images/Pokemon/zeroid.png' }
-            ],
+                { name: 'Pikachu', baseCost: 1000, cps: 75, image: 'Images/Pokemon/pikachu.png' },
+                { name: 'Tiplouf', baseCost: 1500, cps: 25, image: 'Images/Pokemon/tiplouf.png' },
+                { name: 'Rondoudou', baseCost: 2000, cps: 30, image: 'Images/Pokemon/rondoudou.png' },
+                { name: 'Évolie', baseCost: 2500, cps: 40, image: 'Images/Pokemon/evolie.png' }
+            ]
+            // Ajoute les autres niveaux ici
         };
 
         const pokeballs = [
@@ -193,12 +157,14 @@
                     itemDiv.classList.add('pokemon-item');
 
                     const count = pokemonsOwned[pokemon.name]?.count || 0;
+                    const currentCost = Math.floor(pokemon.baseCost * Math.pow(1.15, count));
 
                     itemDiv.innerHTML = `
                         <img src="${pokemon.image}" alt="${pokemon.name}" class="pokemon-img">
                         <h3>${pokemon.name} (Possédés : ${count})</h3>
-                        <p>Coût: ${pokemon.cost} points</p>
-                        <button onclick="buyPokemon('${pokemon.name}', ${pokemon.cost}, ${pokemon.cps})">Acheter</button>
+                        <p>Coût: ${currentCost} points</p>
+                        <p>+${pokemon.cps} CPS par achat</p>
+                        <button onclick="buyPokemon('${pokemon.name}', ${pokemon.baseCost}, ${pokemon.cps})">Acheter</button>
                     `;
 
                     shopDiv.appendChild(itemDiv);
@@ -206,9 +172,12 @@
             }
         }
 
-        function buyPokemon(name, cost, cpsValue) {
-            if (points >= cost) {
-                points -= cost;
+        function buyPokemon(name, baseCost, cpsValue) {
+            const count = pokemonsOwned[name]?.count || 0;
+            const currentCost = Math.floor(baseCost * Math.pow(1.15, count));
+
+            if (points >= currentCost) {
+                points -= currentCost;
                 cps += cpsValue;
 
                 if (!pokemonsOwned[name]) {
@@ -240,11 +209,10 @@
         font-size: 22px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        position: relative;
+        position: relative; /* Permet d'utiliser left */
         top: -14px
     }
     </style>
-    
     <body>
         <footer>
             <a href="index.html" class="date-link">Acceuil</a>
@@ -290,19 +258,6 @@
                     }
                 </script>
         </footer>  
-        <audio id="background-music" src="Images/son2.mp3" loop></audio>
-
-    <script>
-        const audio = document.getElementById('background-music');
-
-        function playMusic() {
-            audio.play().catch(error => {
-                console.error('Erreur lors de la lecture de la musique:', error);
-            });
-            document.body.removeEventListener('click', playMusic);
-        }
-
-        document.body.addEventListener('click', playMusic);
-    </script>
     </body>
     </html>
+    

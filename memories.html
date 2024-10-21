@@ -126,7 +126,7 @@
     </div>
 
     <div id="game-container" style="display:none;">
-        <h2 id="current-player">ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤC'est le tour de <span></span></h2>
+        <h2 id="current-player">ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤC'est le tour de <span></span></h2>
         <button id="reset-button" onclick="resetGame()">Recommencer la partie</button>
         <div id="game-board"></div>
         <div id="score-board"></div>
@@ -140,7 +140,7 @@
         let pairsFound = 0;
         let cards = [];
         let matchedPairs = [];
-        let isChecking = false; // Ajout de la variable pour le contrôle de vérification
+        let isChecking = false;
 
         function togglePlayerOptions() {
             const mode = document.getElementById('mode').value;
@@ -254,16 +254,17 @@
         function flipCard(card) {
             const index = card.getAttribute('data-index');
             if (matchedPairs.includes(index) || card.classList.contains('flipped') || isChecking) {
-                return; // Ignore si la carte est déjà retournée ou déjà appariée, ou si on est en train de vérifier
+                return;
             }
 
             card.classList.add('flipped');
             card.querySelector('.front').style.display = 'block';
             card.querySelector('.back').style.display = 'none';
 
-            const flippedCards = document.querySelectorAll('.flipped');
+            const flippedCards = document.querySelectorAll('.flipped:not(.matched)');
+
             if (flippedCards.length === 2) {
-                isChecking = true; // Indique que nous vérifions les cartes
+                isChecking = true;
                 setTimeout(() => {
                     checkMatch(flippedCards[0], flippedCards[1]);
                 }, 1000);
@@ -280,12 +281,14 @@
                 pairsFound++;
                 document.getElementById(`score-${currentPlayer}`).textContent = scores[currentPlayer];
 
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+
                 if (pairsFound === totalPairs) {
                     setTimeout(() => alert(`${players[currentPlayer]} a gagné !`), 100);
                     resetGame();
                 }
             } else {
-                // Retourne les cartes non appariées
                 card1.classList.remove('flipped');
                 card1.querySelector('.front').style.display = 'none';
                 card1.querySelector('.back').style.display = 'block';
@@ -294,7 +297,7 @@
                 card2.querySelector('.back').style.display = 'block';
             }
 
-            isChecking = false; // Réinitialise le contrôle
+            isChecking = false;
             currentPlayer = (currentPlayer + 1) % players.length;
             updatePlayerTurn();
         }
@@ -313,7 +316,7 @@
         font-size: 22px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        position: relative;
+        position: relative; /* Permet d'utiliser left */
         top: -14px
     }
     </style>
@@ -362,5 +365,6 @@
                     }
                 </script>
         </footer>  
-</body>
-</html>
+    </body>
+    </html>
+    
