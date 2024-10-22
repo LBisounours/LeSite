@@ -62,6 +62,7 @@
     let activePokeball = null;
     const pokemons = [];
     const pokemonSpeed = 1; // Vitesse de déplacement des Pokémon
+    const pokemonIntervals = new Map(); // Pour suivre les intervalles de déplacement des Pokémon
 
     function getRandomPosition() {
         const x = Math.random() * (gameArea.clientWidth - 100);
@@ -86,6 +87,10 @@
     }
 
     function movePokemon(pokemon) {
+        if (pokemonIntervals.has(pokemon)) {
+            clearInterval(pokemonIntervals.get(pokemon)); // Arrête l'ancien intervalle si présent
+        }
+
         const interval = setInterval(() => {
             const { x, y } = getRandomPosition();
             const dx = x - parseFloat(pokemon.style.left);
@@ -103,7 +108,7 @@
                     pokemons.forEach(otherPokemon => {
                         if (otherPokemon !== pokemon && checkCollision(pokemon, otherPokemon)) {
                             clearInterval(interval); 
-                            movePokemon(pokemon);
+                            movePokemon(pokemon); // Redémarrer si collision
                         }
                     });
                 } else {
@@ -113,6 +118,8 @@
                 }
             }, 5);
         }, 2000);
+
+        pokemonIntervals.set(pokemon, interval); // Associe l'intervalle à ce Pokémon
     }
 
     function checkCollision(pokemon1, pokemon2) {
@@ -131,7 +138,7 @@
 
         setTimeout(() => {
             canThrowPokeball = true;
-        }, 500);//temps avant lancer
+        }, 500); // Temps avant lancer
 
         const pokeball = document.createElement('div');
         pokeball.classList.add('pokeball');
