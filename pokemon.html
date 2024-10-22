@@ -6,7 +6,7 @@
         <title>Mémory 🃏</title>
         <link rel="stylesheet" href="style.css">
         <link rel="icon" type="image/png" href="Images/TheStars.png">
-    <style>
+        <style>
         #game {
             border-radius: 50px;
             width: 1000px;
@@ -24,6 +24,14 @@
             position: absolute;
             background-size: cover;
         }
+        .pokeball {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            background-image: url('Images/Memo1/pokeball.png');
+            background-size: cover;
+            pointer-events: none;
+        }
         #score {
             font-size: 20px;
             margin: 20px;
@@ -35,76 +43,159 @@
         }
     </style>
 </head>
-<audio id="background-music" src="Images/sonfond.mp3" loop></audio>
-
-    <script>
-        const audio = document.getElementById('background-music');
-
-        function playMusic() {
-            audio.play().catch(error => {
-                console.error('Erreur lors de la lecture de la musique:', error);
-            });
-            document.body.removeEventListener('click', playMusic);
-        }
-
-        document.body.addEventListener('click', playMusic);
-    </script>
 <body>
 
-    <h1>Attrapez les Pokémon !</h1>
-    <div id="score">Score: 0</div>
-    <button id="start-button">Commencer le jeu</button>
-    <div id="game"></div>
+<h1>Attrapez les Pokémon !</h1>
+<div id="score">Score: 0</div>
+<button id="start-button">Commencer le jeu</button>
+<div id="game"></div>
 
-    <script>
-        const pokemonImages = [
-            'Images/Memo1/mem1.png',
-            'Images/Memo1/mem2.png',
-            'Images/Memo1/mem3.png',
-            'Images/Memo1/mem4.png',
-            'Images/Memo1/mem5.png',
-            'Images/Memo1/mem6.png',
-            'Images/Memo1/mem7.png',
-            'Images/Memo1/mem8.png',
-            'Images/Memo1/mem9.png',
-        ];
+<script>
+    const pokemonImages = [];
+    for (let i = 1; i <= 151; i++) {
+        pokemonImages.push(`Images/Memo1/mem${i}.png`);
+    }
 
-        let score = 0;
-        const gameArea = document.getElementById('game');
+    let score = 0;
+    let canThrowPokeball = true; 
+    const gameArea = document.getElementById('game');
+    let activePokeball = null;
+    const pokemons = [];
+    const pokemonSpeed = 2.5; // Vitesse de déplacement des Pokémon
 
-        function getRandomPosition() {
-            const x = Math.random() * (gameArea.clientWidth - 50);
-            const y = Math.random() * (gameArea.clientHeight - 50);
-            return { x, y };
-        }
+    function getRandomPosition() {
+        const x = Math.random() * (gameArea.clientWidth - 100);
+        const y = Math.random() * (gameArea.clientHeight - 100);
+        return { x, y };
+    }
 
-        function createPokemon() {
-            const pokemon = document.createElement('div');
+    function createPokemon() {
+        const pokemon = document.createElement('div');
+        const { x, y } = getRandomPosition();
+        const randomImage = pokemonImages[Math.floor(Math.random() * pokemonImages.length)];
+
+        pokemon.classList.add('pokemon');
+        pokemon.style.backgroundImage = `url(${randomImage})`;
+        pokemon.style.left = `${x}px`;
+        pokemon.style.top = `${y}px`;
+
+        gameArea.appendChild(pokemon);
+        pokemons.push(pokemon);
+
+        movePokemon(pokemon);
+    }
+
+    function movePokemon(pokemon) {
+        const interval = setInterval(() => {
             const { x, y } = getRandomPosition();
-            const randomImage = pokemonImages[Math.floor(Math.random() * pokemonImages.length)];
+            const dx = x - parseFloat(pokemon.style.left);
+            const dy = y - parseFloat(pokemon.style.top);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const steps = distance / pokemonSpeed;
+            const stepX = dx / steps;
+            const stepY = dy / steps;
 
-            pokemon.classList.add('pokemon');
-            pokemon.style.backgroundImage = `url(${randomImage})`;
-            pokemon.style.left = `${x}px`;
-            pokemon.style.top = `${y}px`;
+            let currentStep = 0;
 
-            pokemon.onclick = function() {
-                score++;
-                document.getElementById('score').innerText = `Score: ${score}`;
-                gameArea.removeChild(pokemon);
-                createPokemon(); // Crée un nouveau Pokémon après en avoir attrapé un
-            };
+            const stepInterval = setInterval(() => {
+                if (currentStep >= steps) {
+                    clearInterval(stepInterval);
+                    pokemons.forEach(otherPokemon => {
+                        if (otherPokemon !== pokemon && checkCollision(pokemon, otherPokemon)) {
+                            clearInterval(interval); 
+                            movePokemon(pokemon);
+                        }
+                    });
+                } else {
+                    pokemon.style.left = `${parseFloat(pokemon.style.left) + stepX}px`;
+                    pokemon.style.top = `${parseFloat(pokemon.style.top) + stepY}px`;
+                    currentStep++;
+                }
+            }, 20);
+        }, 2000);
+    }
 
-            gameArea.appendChild(pokemon);
-        }
+    function checkCollision(pokemon1, pokemon2) {
+        const rect1 = pokemon1.getBoundingClientRect();
+        const rect2 = pokemon2.getBoundingClientRect();
 
-        document.getElementById('start-button').onclick = function() {
-            score = 0;
-            document.getElementById('score').innerText = `Score: ${score}`;
-            gameArea.innerHTML = ''; // Vide le terrain de jeu
-            createPokemon(); // Crée le premier Pokémon
-        };
-    </script>
+        return !(rect1.right < rect2.left || 
+                 rect1.left > rect2.right || 
+                 rect1.bottom < rect2.top || 
+                 rect1.top > rect2.bottom);
+    }
+
+    function throwPokeball(clickX, clickY) {
+        if (!canThrowPokeball) return; 
+        canThrowPokeball = false;
+
+        setTimeout(() => {
+            canThrowPokeball = true;
+        }, 500);//temps avant lancer
+
+        const pokeball = document.createElement('div');
+        pokeball.classList.add('pokeball');
+        const centerX = gameArea.clientWidth / 2 - 25;  
+        const centerY = gameArea.clientHeight / 2 - 25;
+
+        pokeball.style.left = `${centerX}px`;
+        pokeball.style.top = `${centerY}px`;
+
+        gameArea.appendChild(pokeball);
+        activePokeball = pokeball;
+
+        const pokeballSpeed = 8;
+
+        const dx = clickX - centerX;
+        const dy = clickY - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const steps = distance / pokeballSpeed;
+        const stepX = dx / steps;
+        const stepY = dy / steps;
+
+        let currentStep = 0;
+        const moveInterval = setInterval(() => {
+            if (currentStep >= steps) {
+                clearInterval(moveInterval);
+                gameArea.removeChild(pokeball);
+                activePokeball = null;
+            } else {
+                pokeball.style.left = `${parseFloat(pokeball.style.left) + stepX}px`;
+                pokeball.style.top = `${parseFloat(pokeball.style.top) + stepY}px`;
+
+                pokemons.forEach((pokemon, index) => {
+                    if (checkCollision(pokeball, pokemon)) {
+                        clearInterval(moveInterval);
+                        gameArea.removeChild(pokeball);
+                        gameArea.removeChild(pokemon);
+                        pokemons.splice(index, 1); 
+
+                        score++;
+                        document.getElementById('score').innerText = `Score: ${score}`;
+                        createPokemon(); 
+                        activePokeball = null;
+                    }
+                });
+            }
+            currentStep++;
+        }, 20);
+    }
+
+    gameArea.addEventListener('click', (event) => {
+        const rect = gameArea.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
+        throwPokeball(clickX, clickY);
+    });
+
+    document.getElementById('start-button').onclick = function() {
+        score = 0;
+        document.getElementById('score').innerText = `Score: ${score}`;
+        gameArea.innerHTML = '';
+        pokemons.length = 0; 
+        for (let i = 0; i < 3; i++) createPokemon(); 
+    };
+</script>
 <style>
     .profile-pics {
         margin-left: 320px;
@@ -119,7 +210,7 @@
         font-size: 22px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        position: relative;
+        position: relative; /* Permet d'utiliser left */
         top: -14px
     }
     </style>
@@ -168,5 +259,6 @@
                     }
                 </script>
         </footer>  
-</body>
-</html>
+    </body>
+    </html>
+    
