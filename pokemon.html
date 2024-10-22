@@ -61,7 +61,7 @@
     const gameArea = document.getElementById('game');
     let activePokeball = null;
     const pokemons = [];
-    const pokemonSpeed = 2.5; // Vitesse de déplacement des Pokémon
+    const pokemonSpeed = 1; // Vitesse de déplacement des Pokémon
 
     function getRandomPosition() {
         const x = Math.random() * (gameArea.clientWidth - 100);
@@ -111,7 +111,7 @@
                     pokemon.style.top = `${parseFloat(pokemon.style.top) + stepY}px`;
                     currentStep++;
                 }
-            }, 20);
+            }, 5);
         }, 2000);
     }
 
