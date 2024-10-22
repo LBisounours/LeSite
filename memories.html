@@ -25,6 +25,31 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
+        
+        #failed-attempts {
+            position: relative;
+            right: -900px;
+            width: 200px; 
+            height: 30px;
+            font-size: 18px;
+            background-color: #6f94ea;
+            border-radius: 5px;
+            padding : 8px;
+            color: white;
+        }
+
+        #timer {
+            position: relative;
+            top: 46px;
+            right: -670px;
+            width: 200px; 
+            height: 30px;
+            font-size: 18px;
+            background-color: #6f94ea;
+            border-radius: 5px;
+            padding : 8px;
+            color: white;
+        }
 
         .card {
             width: 100px;
@@ -72,7 +97,7 @@
         #reset-button {
             position: absolute;
             left: 20px;
-            top: 20px;
+            top: 100px;
             background-color: #dc3545;
         }
 
@@ -137,9 +162,12 @@
     <div id="game-container" style="display:none;">
         <h2 id="current-player">ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤC'est le tour de <span></span></h2>
         <button id="reset-button" onclick="resetGame()">Recommencer la partie</button>
+        <div id="timer">Temps : 0s</div>
+        <div id="failed-attempts">Échecs : 0</div>
         <div id="game-board"></div>
         <div id="score-board"></div>
     </div>
+    <div id="timer">Temps : 0s</div>
 
     <script>
         let totalPairs;
@@ -150,6 +178,9 @@
         let cards = [];
         let matchedPairs = [];
         let isChecking = false;
+        let timeElapsed = 0;
+        let failedAttempts = 0;
+        let timerInterval;
 
         function togglePlayerOptions() {
             const mode = document.getElementById('mode').value;
@@ -179,6 +210,16 @@
                 return document.getElementById(`player${i}`).value || `Joueur ${i + 1}`;
             }) : ['Solo'];
 
+            timeElapsed = 0;
+            failedAttempts = 0;
+            document.getElementById('timer').textContent = `Temps : ${timeElapsed}s`;
+            document.getElementById('failed-attempts').textContent = `Échecs : ${failedAttempts}`;
+    
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                document.getElementById('timer').textContent = `Temps : ${timeElapsed}s`;
+            }, 1000);
+
             scores = new Array(players.length).fill(0);
             currentPlayer = 0;
             pairsFound = 0;
@@ -194,9 +235,11 @@
         }
 
         function resetGame() {
+            clearInterval(timerInterval);
             document.getElementById('start-screen').style.display = 'block';
             document.getElementById('game-container').style.display = 'none';
         }
+
 
         function shuffleCards(theme) {
             const themeCardCounts = {
@@ -276,10 +319,13 @@
                 pairsFound++;
                 displayScoreBoard();
                 if (pairsFound === totalPairs) {
-                    alert(`Partie terminée ! ${players[currentPlayer]} a gagné !`);
+                    clearInterval(timerInterval); // Arrête le timer à la fin du jeu
+                    alert(`Partie terminée ! ${players[currentPlayer]} a gagné en ${timeElapsed}s avec ${failedAttempts} échecs !`);
                     resetGame();
                 }
             } else {
+                failedAttempts++;
+                document.getElementById('failed-attempts').textContent = `Échecs : ${failedAttempts}`;
                 card1.classList.remove('flipped');
                 card1.querySelector('.front').style.display = 'none';
                 card1.querySelector('.back').style.display = 'block';
@@ -291,6 +337,7 @@
             updatePlayerTurn();
             isChecking = false;
         }
+
     </script>
 <style>
     .profile-pics {
