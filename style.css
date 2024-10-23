@@ -52,7 +52,7 @@ input {
 }
 
 button {
-    background-color: #4caf50;
+    background-color: #d71414;
     color: #fff;
     padding: 10px;
     border: none;
@@ -62,7 +62,7 @@ button {
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #d71414;
 }
 
 #result {
