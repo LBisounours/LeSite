@@ -3,34 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>À venir.. 🕰️</title>
+    <title>Test CPS</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+
+        .container {
+            text-align: center;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(247, 205, 20, 0.868);
+        }
+
+        button {
+            background-color: #e61919;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #e61919;
+        }
+
+        select {
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .click-area {
+            width: 800px;
+            height: 400px;
+            background-color: #6f94ea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+            border: 2px dashed #c81010;
+            cursor: pointer;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 24px;
+            margin-bottom: 95px;
+        }
+    </style>
 </head>
 <body>
-    <div class="coming-soon-container">
-        <div class="coming-soon-panel">
-            <h1>Coming Soon...</h1>
-        </div>
+    <div class="container">
+        <h1>Test CPS</h1>
+        <label for="timeSelect">Choisissez le temps (secondes):</label>
+        <select id="timeSelect">
+            <option value="1">1 seconde</option>
+            <option value="5">5 secondes</option>
+            <option value="10">10 secondes</option>
+            <option value="30">30 secondes</option>
+            <option value="60">60 secondes</option>
+        </select>
+        <button id="startButton">Commencer</button>
+        <div class="click-area" id="clickArea">Cliquez ici !</div>
+        <div class="result" id="result">Clics: 0</div>
     </div>
-    <div w3-include-html="footer.html"></div>
-    <script src="https://www.w3schools.com/lib/w3.js"></script>
+
     <script>
-        w3.includeHTML();
-    </script>
-</body>
-</html>
-<script>
-    // Script pour le dropdown
-    function toggleOptions(optionId) {
-        const optionsDiv = document.getElementById(optionId);
-        if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
-            optionsDiv.style.display = "block";
-        } else {
-            optionsDiv.style.display = "none";
+        let clickCount = 0;
+        let timer;
+        let totalTime;
+
+        document.getElementById('startButton').addEventListener('click', function() {
+            clickCount = 0;
+            totalTime = parseInt(document.getElementById('timeSelect').value);
+            document.getElementById('result').textContent = 'Clics: 0';
+            document.getElementById('clickArea').textContent = 'Cliquez ici !';
+
+            document.getElementById('clickArea').addEventListener('click', countClicks);
+            
+            timer = setTimeout(calculateCPS, totalTime * 1000);
+        });
+
+        function countClicks() {
+            clickCount++;
+            document.getElementById('result').textContent = `Clics: ${clickCount}`;
         }
-    }
-</script>
+
+        function calculateCPS() {
+            document.getElementById('clickArea').removeEventListener('click', countClicks);
+            const cps = (clickCount / totalTime).toFixed(2); 
+            document.getElementById('clickArea').textContent = `Vous avez cliqué ${clickCount} fois. CPS: ${cps}`;
+        }
+    </script>
 <style>
     .profile-pics {
         margin-left: 320px;
@@ -45,7 +114,7 @@
         font-size: 22px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        position: relative; /* Permet d'utiliser left */
+        position: relative; 
         top: -14px
     }
     </style>
