@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Mémory 🃏</title>
+        <title>PokémonGo 👾</title>
         <link rel="stylesheet" href="style.css">
         <link rel="icon" type="image/png" href="Images/TheStars.png">
         <style>
@@ -61,8 +61,8 @@
     const gameArea = document.getElementById('game');
     let activePokeball = null;
     const pokemons = [];
-    const pokemonSpeed = 1; // Vitesse de déplacement des Pokémon
-    const pokemonIntervals = new Map(); // Pour suivre les intervalles de déplacement des Pokémon
+    const pokemonSpeed = 1;
+    const pokemonIntervals = new Map(); 
 
     function getRandomPosition() {
         const x = Math.random() * (gameArea.clientWidth - 100);
@@ -88,7 +88,7 @@
 
     function movePokemon(pokemon) {
         if (pokemonIntervals.has(pokemon)) {
-            clearInterval(pokemonIntervals.get(pokemon)); // Arrête l'ancien intervalle si présent
+            clearInterval(pokemonIntervals.get(pokemon));
         }
 
         const interval = setInterval(() => {
@@ -108,7 +108,7 @@
                     pokemons.forEach(otherPokemon => {
                         if (otherPokemon !== pokemon && checkCollision(pokemon, otherPokemon)) {
                             clearInterval(interval); 
-                            movePokemon(pokemon); // Redémarrer si collision
+                            movePokemon(pokemon); 
                         }
                     });
                 } else {
@@ -119,7 +119,7 @@
             }, 5);
         }, 2000);
 
-        pokemonIntervals.set(pokemon, interval); // Associe l'intervalle à ce Pokémon
+        pokemonIntervals.set(pokemon, interval);
     }
 
     function checkCollision(pokemon1, pokemon2) {
@@ -143,7 +143,7 @@
         const pokeball = document.createElement('div');
         pokeball.classList.add('pokeball');
         const centerX = gameArea.clientWidth / 2 - 25;  
-        const centerY = gameArea.clientHeight / 2 - 25;
+        const centerY = gameArea.clientHeight / 2 - -200;
 
         pokeball.style.left = `${centerX}px`;
         pokeball.style.top = `${centerY}px`;
