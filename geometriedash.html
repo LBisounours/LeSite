@@ -231,6 +231,22 @@
         top: -14px
     }
     </style>
+    <body>
+        <audio id="background-music" src="Images/geoson.mp3" loop></audio>
+    
+        <script>
+            const audio = document.getElementById('background-music');
+    
+            function playMusic() {
+                audio.play().catch(error => {
+                    console.error('Erreur lors de la lecture de la musique:', error);
+                });
+                document.body.removeEventListener('click', playMusic);
+            }
+    
+            document.body.addEventListener('click', playMusic);
+        </script>
+    </body>
     
     <body>
         <footer>
