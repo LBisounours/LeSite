@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GeometryDash</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/png" href="Images/TheStars.png">
+        <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #gameCanvas {
+            background: url('Images/backgeo.png') repeat-x;
+            display: block;
+            margin: 0 auto;
+            border: 2px solid black;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(247, 205, 20, 0.868);
+        }
+
+        #startButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #startButton:hover {
+            background-color: #0056b3;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        #scoreText {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 80px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Geometry Dash - Infinite</h1>
+
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+    <button id="startButton" onclick="startGame()">Jouer</button>
+
+    <div class="status" id="statusText">Appuyez sur "Jouer" pour commencer.</div>
+    <div id="scoreText">Score : 0</div> <!-- Ajout d'un élément pour le score -->
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Charger les images
+        const playerImg = new Image();
+        playerImg.src = 'Images/perso.png';
+
+        const cubeImg = new Image();
+        cubeImg.src = 'Images/cube.png';
+
+        const spikeImg = new Image();
+        spikeImg.src = 'Images/pick.png';
+
+        const groundImg = new Image();
+        groundImg.src = 'Images/solgeo.png';
+
+        let player = { x: 50, y: 300, width: 50, height: 50, dy: 0, isJumping: false, rotation: 0 };
+        let gravity = 0.5;
+        let jumpPower = -10;
+        let groundLevel = canvas.height - player.height - 40; // Ajuster pour inclure le sol
+        let obstacles = [];
+        let gameSpeed = 4;
+        let gameActive = false;
+        let score = 0;
+
+        document.addEventListener('keydown', handleJump);
+        document.addEventListener('mousedown', handleJump);
+        
+        function handleJump(e) {
+            if (gameActive && (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyZ' || e.type === 'mousedown')) {
+                if (!player.isJumping) {
+                    player.dy = jumpPower;
+                    player.isJumping = true;
+                }
+            }
+        }
+
+        function startGame() {
+            gameActive = true;
+            player.x = 50;
+            player.y = groundLevel;
+            player.dy = 0;
+            player.rotation = 0;
+            obstacles = [];
+            score = 0;
+            document.getElementById('statusText').textContent = "Le jeu a commencé !";
+            document.getElementById('scoreText').textContent = `Score : ${score}`; // Réinitialiser le score affiché
+            requestAnimationFrame(gameLoop);
+            generateObstacle();
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+
+            // Dessiner le fond en mouvement
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(groundImg, 0, canvas.height - 40, canvas.width, 40);
+
+            // Dessiner le joueur avec rotation
+            ctx.save();
+            ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+            ctx.rotate(player.rotation * Math.PI / 180);
+            ctx.drawImage(playerImg, -player.width / 2, -player.height / 2, player.width, player.height);
+            ctx.restore();
+
+            // Gérer la rotation du joueur en saut
+            if (player.isJumping) {
+                player.rotation += 5; // Augmenter la vitesse de rotation
+            }
+
+            // Mise à jour de la position du joueur
+            player.y += player.dy;
+            player.dy += gravity;
+
+            // Empêcher le joueur de tomber sous le sol
+            if (player.y > groundLevel) {
+                player.y = groundLevel;
+                player.isJumping = false;
+                player.rotation = 0; // Réinitialiser la rotation à la fin du saut
+            }
+
+            // Déplacer et dessiner les obstacles
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].x -= gameSpeed;
+                if (obstacles[i].type === 'cube') {
+                    ctx.drawImage(cubeImg, obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+                } else if (obstacles[i].type === 'spike') {
+                    ctx.drawImage(spikeImg, obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+                }
+
+                // Vérifier la collision
+                if (isColliding(player, obstacles[i])) {
+                    endGame();
+                }
+
+                // Retirer les obstacles en dehors de l'écran
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    score += 1;
+                    document.getElementById('scoreText').textContent = `Score : ${score}`; // Mettre à jour le score affiché
+                    i--;
+                }
+            }
+
+            // Générer de nouveaux obstacles
+            if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - 300) {
+                generateObstacle();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function generateObstacle() {
+            let obstacleType = Math.random() < 0.5 ? 'cube' : 'spike';
+            if (obstacleType === 'cube') {
+                obstacles.push({
+                    type: 'cube',
+                    x: canvas.width,
+                    y: canvas.height - 85, // Ajusté pour correspondre à la hauteur du sol
+                    width: 45,
+                    height: 45
+                });
+            } else {
+                obstacles.push({
+                    type: 'spike',
+                    x: canvas.width,
+                    y: canvas.height - 90,
+                    width: 30,
+                    height: 50
+                });
+            }
+        }
+
+        function isColliding(player, obstacle) {
+            return (
+                player.x < obstacle.x + obstacle.width &&
+                player.x + player.width > obstacle.x &&
+                player.y < obstacle.y + obstacle.height &&
+                player.y + player.height > obstacle.y
+            );
+        }
+
+        function endGame() {
+            gameActive = false;
+            document.getElementById('statusText').textContent = `Game Over ! Score : ${score}`;
+        }
+    </script>
+<style>
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+    </style>
+    
+    <body>
+        <footer>
+            <a href="index.html" class="date-link">Acceuil</a>
+            <a href="LeSite.html" class="date-link">Le Calendrier..</a>
+    
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="https://www.twitch.tv/le_bisounours_" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+    
+            <div class="dropdown2">
+                <button class="button2" onclick="toggleOptions('options2')">Autre</button>
+                <div id="options2" class="options">
+                    <div class="option2"><a href="Noel.html">Décompte</a></div>
+                    <div class="option2"><a href="musique.html">Musique</a></div>
+                    <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
+                    <div class="option2"><a href="cps.html">Test CPS</a></div>
+                    <div class="option2"><a href="Bientot.html">A venir..</a></div>
+                </div>
+            </div>
+    
+                <div class="dropdown">
+                    <button class="button" onclick="toggleOptions('options')">Jeux</button>
+                    <div id="options" class="options">
+                        <div class="option"><a href="Morpion.html">Morpion</a></div>
+                        <div class="option"><a href="Puissance4.html">Puissance4</a></div>
+                        <div class="option"><a href="memories.html">Memory</a></div>
+                        <div class="option"><a href="pokemon.html">PokemonGo</a></div>
+                        <div class="option"><a href="clicker.html">PokeCliker</a></div>
+                        <div class="option"><a href="pendu.html">JeuDuPendu</a></div>
+                        <div class="option"><a href="geometriedash.html">GeometryDash</a></div>
+                        <div class="option"><a href="Bientot.html">A venir..</a></div>
+                    </div>
+                </div>
+            
+                <script>
+                    function toggleOptions(optionId) {
+                        const optionsDiv = document.getElementById(optionId);
+                        if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
+                            optionsDiv.style.display = "block";
+                        } else {
+                            optionsDiv.style.display = "none";
+                        }
+                    }
+                </script>
+        </footer>  
+    </body>
+    </html>
