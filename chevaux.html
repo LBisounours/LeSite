@@ -32,16 +32,19 @@
     <div class="container">
         <section>
             <iframe id="html5-game-frame" src="https://playzool.com/games/petitsChevauxSH/?fromPartner=popcom&amp;utm_source=popcom&amp;utm_medium=iframe&amp;lang=fr&amp;utm_campaign=jeux123.fr" 
-                    title="Les Petits Chevaux 🕹️ Jeux Gratuits sur Jeux123" scrolling="no"></iframe>
+                    title="Les Petits Chevaux 🕹️ Jeux Gratuits sur Jeux123" scrolling="no" sandbox="allow-scripts allow-same-origin"></iframe>
         </section>
     </div>
 </main>
 
 <script>
+    // Bloque les liens de redirection au sein de l'iframe
     document.getElementById('html5-game-frame').addEventListener('load', function() {
-        const iframe = document.getElementById('html5-game-frame').contentWindow;
-        iframe.document.body.addEventListener('click', function(event) {
-            event.preventDefault(); // Empêche les redirections externes
+        const iframeDocument = document.getElementById('html5-game-frame').contentDocument;
+        iframeDocument.body.addEventListener('click', function(event) {
+            if (event.target.tagName === 'A') {
+                event.preventDefault();
+            }
         });
     });
 </script>
