@@ -45,15 +45,13 @@
     <script>
         const audio = document.getElementById('background-music');
 
-        // Fonction pour jouer la musique
         function playMusic() {
             audio.play().catch(error => {
                 console.error('Erreur lors de la lecture de la musique:', error);
             });
-            document.body.removeEventListener('click', playMusic); // Empêche de jouer plusieurs fois
+            document.body.removeEventListener('click', playMusic); 
         }
 
-        // Écouteur d'événement pour jouer la musique lors du premier clic
         document.body.addEventListener('click', playMusic);
     </script>
 
@@ -173,7 +171,7 @@
                         player1.positions.push(cellIndex);
                         if (checkWin(player1.positions)) {
                             statusDisplay.textContent = `${player1Name} a gagné !`;
-                            updateScore(1); // Met à jour le score du joueur 1
+                            updateScore(1); 
                             disableGrid();
                         } else {
                             currentPlayer = 2;
@@ -187,7 +185,7 @@
                         player2.positions.push(cellIndex);
                         if (checkWin(player2.positions)) {
                             statusDisplay.textContent = `${player2Name} a gagné !`;
-                            updateScore(2); // Met à jour le score du joueur 2
+                            updateScore(2); 
                             disableGrid();
                         } else {
                             currentPlayer = 1;
@@ -219,14 +217,14 @@
                             player1.positions = player1.positions.map(pos => pos === previousIndex ? cellIndex : pos);
                             if (checkWin(player1.positions)) {
                                 statusDisplay.textContent = `${player1Name} a gagné !`;
-                                updateScore(1); // Met à jour le score du joueur 1
+                                updateScore(1); 
                                 disableGrid();
                             }
                         } else {
                             player2.positions = player2.positions.map(pos => pos === previousIndex ? cellIndex : pos);
                             if (checkWin(player2.positions)) {
                                 statusDisplay.textContent = `${player2Name} a gagné !`;
-                                updateScore(2); // Met à jour le score du joueur 2
+                                updateScore(2); 
                                 disableGrid();
                             }
                         }
@@ -296,6 +294,7 @@
                     <div class="option2"><a href="Noel.html">Décompte</a></div>
                     <div class="option2"><a href="musique.html">Musique</a></div>
                     <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
+                    <div class="option2"><a href="pf.html">Pile ou Face</a></div>
                     <div class="option2"><a href="cps.html">Test CPS</a></div>
                     <div class="option2"><a href="Bientot.html">A venir..</a></div>
                 </div>

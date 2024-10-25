@@ -63,7 +63,7 @@
     <button id="startButton" onclick="startGame()">Jouer</button>
 
     <div class="status" id="statusText">Appuyez sur "Jouer" pour commencer.</div>
-    <div id="scoreText">Score : 0</div> <!-- Ajout d'un élément pour le score -->
+    <div id="scoreText">Score : 0</div> 
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -85,7 +85,7 @@
         let player = { x: 50, y: 300, width: 50, height: 50, dy: 0, isJumping: false, rotation: 0 };
         let gravity = 0.5;
         let jumpPower = -10;
-        let groundLevel = canvas.height - player.height - 40; // Ajuster pour inclure le sol
+        let groundLevel = canvas.height - player.height - 40; 
         let obstacles = [];
         let gameSpeed = 4;
         let gameActive = false;
@@ -112,7 +112,7 @@
             obstacles = [];
             score = 0;
             document.getElementById('statusText').textContent = "Le jeu a commencé !";
-            document.getElementById('scoreText').textContent = `Score : ${score}`; // Réinitialiser le score affiché
+            document.getElementById('scoreText').textContent = `Score : ${score}`;
             requestAnimationFrame(gameLoop);
             generateObstacle();
         }
@@ -120,34 +120,28 @@
         function gameLoop() {
             if (!gameActive) return;
 
-            // Dessiner le fond en mouvement
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(groundImg, 0, canvas.height - 40, canvas.width, 40);
 
-            // Dessiner le joueur avec rotation
             ctx.save();
             ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
             ctx.rotate(player.rotation * Math.PI / 180);
             ctx.drawImage(playerImg, -player.width / 2, -player.height / 2, player.width, player.height);
             ctx.restore();
 
-            // Gérer la rotation du joueur en saut
             if (player.isJumping) {
-                player.rotation += 5; // Augmenter la vitesse de rotation
+                player.rotation += 5; 
             }
 
-            // Mise à jour de la position du joueur
             player.y += player.dy;
             player.dy += gravity;
 
-            // Empêcher le joueur de tomber sous le sol
             if (player.y > groundLevel) {
                 player.y = groundLevel;
                 player.isJumping = false;
-                player.rotation = 0; // Réinitialiser la rotation à la fin du saut
+                player.rotation = 0; 
             }
 
-            // Déplacer et dessiner les obstacles
             for (let i = 0; i < obstacles.length; i++) {
                 obstacles[i].x -= gameSpeed;
                 if (obstacles[i].type === 'cube') {
@@ -156,16 +150,14 @@
                     ctx.drawImage(spikeImg, obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
                 }
 
-                // Vérifier la collision
                 if (isColliding(player, obstacles[i])) {
                     endGame();
                 }
 
-                // Retirer les obstacles en dehors de l'écran
                 if (obstacles[i].x + obstacles[i].width < 0) {
                     obstacles.splice(i, 1);
                     score += 1;
-                    document.getElementById('scoreText').textContent = `Score : ${score}`; // Mettre à jour le score affiché
+                    document.getElementById('scoreText').textContent = `Score : ${score}`;
                     i--;
                 }
             }
@@ -184,7 +176,7 @@
                 obstacles.push({
                     type: 'cube',
                     x: canvas.width,
-                    y: canvas.height - 85, // Ajusté pour correspondre à la hauteur du sol
+                    y: canvas.height - 85, 
                     width: 45,
                     height: 45
                 });
@@ -266,6 +258,7 @@
                     <div class="option2"><a href="Noel.html">Décompte</a></div>
                     <div class="option2"><a href="musique.html">Musique</a></div>
                     <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
+                    <div class="option2"><a href="pf.html">Pile ou Face</a></div>
                     <div class="option2"><a href="cps.html">Test CPS</a></div>
                     <div class="option2"><a href="Bientot.html">A venir..</a></div>
                 </div>

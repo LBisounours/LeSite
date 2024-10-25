@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChiFuMi ! ✊🏼🍃✂️</title>
+    <title>Pile ou Face ! 🪙</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="Images/TheStars.png">
     <style>
@@ -19,7 +19,7 @@
             margin-bottom: 100px;
         }
         #result {
-            font-size: 1.2em;
+            font-size: 1.5em;
             margin: 20px 0;
         }
         .choices img {
@@ -27,145 +27,80 @@
             height: auto;
             margin: 0 10px;
             cursor: pointer;
+            transition: transform 0.2s;
         }
-        .battle {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px;
+        .choices img:hover {
+            transform: scale(1.1); 
+        }
+        #coin {
             position: relative;
-            width: 100%;
-            max-width: 250px; 
-            margin: 0 auto; 
+            width: 150px; 
+            height: auto;
+            margin: 20px 0;
+            display: none; 
+            align-items: center;
+            right: -180px;
         }
-        .battle img {
-            width: 100px;
-            position: relative;
-            transition: transform 2.5s ease, opacity 0.5s ease;
+        @keyframes flip {
+            0% { transform: rotateY(0); }
+            50% { transform: rotateY(1800deg); }
+            100% { transform: rotateY(3600deg); }
         }
-        #stats {
-            margin-top: 20px;
-        }
-        #stats div {
-            margin-bottom: 10px;
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Pierre - Feuille - Ciseaux</h1>
+        <h1>Pile ou Face</h1>
 
         <div>Faites votre choix !</div>
 
         <div class="choices">
-            <img src="Images/Pierre.png" alt="Pierre" onclick="playGame('Pierre')">
-            <img src="Images/feuille.png" alt="Feuille" onclick="playGame('Feuille')">
-            <img src="Images/ciseaux.png" alt="Ciseaux" onclick="playGame('Ciseaux')">
+            <img src="Images/pilepiece.png" alt="Pile" onclick="startGame('pile')">
+            <img src="Images/facepiece.png" alt="Face" onclick="startGame('face')">
         </div>
 
         <div id="result">ㅤ</div>
 
-        <div class="battle">
-            <div id="playerChoice" style="opacity: 0;"></div>
-            <div id="computerChoice" style="opacity: 0;"></div>
-        </div>
+        <img id="coin" src="Images/pilepiece.png" alt="Pièce en jeu">
 
-        <div id="stats">
-            <div>Victoires : <span id="wins">0</span></div>
-            <div>Défaites : <span id="losses">0</span></div>
-            <div>Égalités : <span id="ties">0</span></div>
-        </div>
-
-        <button onclick="resetStats()">Réinitialiser les statistiques</button>
+        <button onclick="resetGame()">Réinitialiser le jeu</button>
     </div>
 
     <script>
-        let wins = 0;
-        let losses = 0;
-        let ties = 0;
+        function startGame(playerChoice) {
+            const coin = document.getElementById("coin");
+            coin.style.display = "block";
+            coin.style.animation = "flip 2s linear"; 
+            
+            let flipCount = 10; 
+            let flipInterval = setInterval(() => {
+                coin.src = (coin.src.includes("pilepiece.png")) ? "Images/facepiece.png" : "Images/pilepiece.png";
+                flipCount--;
+                if (flipCount <= 0) {
+                    clearInterval(flipInterval);
+                    const choices = ['pile', 'face'];
+                    const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+                    
+                    document.getElementById("result").textContent = `Vous avez choisi ${playerChoice}, la pièce est tombée sur ${computerChoice}.`;
 
-        function displayChoices(playerChoice, computerChoice) {
-            const playerDiv = document.getElementById("playerChoice");
-            const computerDiv = document.getElementById("computerChoice");
+                    coin.src = computerChoice === "pile" ? "Images/pilepiece.png" : "Images/facepiece.png"; 
+                }
+            }, 200);
 
-            playerDiv.innerHTML = `<img src="Images/${playerChoice}.png" alt="${playerChoice}">`;
-            computerDiv.innerHTML = `<img src="Images/${computerChoice}.png" alt="${computerChoice}">`;
-
-            playerDiv.style.opacity = 1;
-            computerDiv.style.opacity = 1;
+            setTimeout(() => {
+                coin.style.animation = "none";
+            }, 2000); 
         }
 
-        function animateChoices(playerChoice, computerChoice) {
-            const playerImg = document.querySelector('#playerChoice img');
-            const computerImg = document.querySelector('#computerChoice img');
-
-            playerImg.style.transform = "translateX(0)";
-            computerImg.style.transform = "translateX(0)";
-
-            if (playerChoice === computerChoice) {
-                playerImg.style.transform = "translateX(0)";
-                computerImg.style.transform = "translateX(0)";
-            } else if (
-                (playerChoice === 'Pierre' && computerChoice === 'Ciseaux') ||
-                (playerChoice === 'Feuille' && computerChoice === 'Pierre') ||
-                (playerChoice === 'Ciseaux' && computerChoice === 'Feuille')
-            ) {
-                playerImg.style.transform = "translateX(0px)"; 
-                computerImg.style.transform = "translateX(0px)"; 
-
-                setTimeout(() => {
-                    computerImg.style.opacity = 0;
-                }, 500);
-            } else {
-                computerImg.style.transform = "translateX(px)";
-                playerImg.style.transform = "translateX(0px)";
-
-                setTimeout(() => {
-                    playerImg.style.opacity = 0;
-                }, 500);
-            }
-        }
-
-        function updateStats() {
-            document.getElementById("wins").textContent = wins;
-            document.getElementById("losses").textContent = losses;
-            document.getElementById("ties").textContent = ties;
-        }
-
-        function resetStats() {
-            wins = 0;
-            losses = 0;
-            ties = 0;
+        function resetGame() {
             document.getElementById("result").textContent = "Faites votre choix !";
-            document.getElementById("playerChoice").innerHTML = "";
-            document.getElementById("computerChoice").innerHTML = "";
-            updateStats();
-        }
-
-        function playGame(playerChoice) {
-            const choices = ['Pierre', 'Feuille', 'Ciseaux'];
-            const computerChoice = choices[Math.floor(Math.random() * choices.length)];
-            let result = "";
-
-            displayChoices(playerChoice, computerChoice);
-
-            if (playerChoice === computerChoice) {
-                result = "Égalité !";
-                ties++;
-            } else if (
-                (playerChoice === 'Pierre' && computerChoice === 'Ciseaux') ||
-                (playerChoice === 'Feuille' && computerChoice === 'Pierre') ||
-                (playerChoice === 'Ciseaux' && computerChoice === 'Feuille')
-            ) {
-                result = "Victoire !";
-                wins++;
-            } else {
-                result = "Défaite !";
-                losses++;
-            }
-
-            document.getElementById("result").textContent = `ㅤㅤㅤㅤㅤㅤVous : ${playerChoice} ㅤㅤㅤOrdi : ${computerChoice} ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ${result}`;
-            updateStats();
-            animateChoices(playerChoice, computerChoice);
+            document.getElementById("coin").style.display = "none"; 
         }
     </script>
 <style>

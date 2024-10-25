@@ -11,8 +11,8 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            flex-wrap: wrap; /* Permet de faire passer les éléments à la ligne */
-            gap: 20px; /* Espace entre les conteneurs */
+            flex-wrap: wrap;
+            gap: 20px; 
             margin-bottom: 80px;
         }
 
@@ -63,13 +63,12 @@
             height: 0;
             background-color: #76c7c0;
             transition: height 0.1s;
-            max-height: 100%; /* Empêche les barres de dépasser */
+            max-height: 100%;
         }
     </style>
 </head>
 <body>
     <div class="containers">
-        <!-- Conteneur 1 -->
         <div class="container">
             <img src="Images/C'estnouslesBloods.png" alt="Cover 1">
             <h2>C'est Nous Les Bloods</h2>
@@ -92,7 +91,6 @@
             <input type="range" class="volume-control" id="volume1" min="0" max="1" step="0.1" value="1">
         </div>
 
-        <!-- Conteneur 2 -->
         <div class="container">
             <img src="Images/Lofi.png" alt="Cover 2">
             <h2>Anime Lofi</h2>
@@ -114,7 +112,6 @@
             <input type="range" class="volume-control" id="volume2" min="0" max="1" step="0.1" value="1">
         </div>
 
-        <!-- Conteneur 3 -->
         <div class="container">
             <img src="Images/SadofBisounoursCover.png" alt="Cover 3">
             <h2>Sad Of Bisounours</h2>
@@ -136,7 +133,6 @@
             <input type="range" class="volume-control" id="volume3" min="0" max="1" step="0.1" value="1">
         </div>
 
-        <!-- Conteneur 4 -->
         <div class="container">
             <img src="Images/Starscousin.png" alt="Cover 4">
             <h2>The Stars Cousins</h2>
@@ -158,7 +154,6 @@
             <input type="range" class="volume-control" id="volume4" min="0" max="1" step="0.1" value="1">
         </div>
 
-        <!-- Conteneur 5 -->
         <div class="container">
             <img src="Images/Lounge.png" alt="Cover 5">
             <h2>Coffee Lounge</h2>
@@ -180,7 +175,6 @@
             <input type="range" class="volume-control" id="volume5" min="0" max="1" step="0.1" value="1">
         </div>
 
-        <!-- Conteneur 6 -->
         <div class="container">
             <img src="Images/DevilBisounours.png" alt="Cover 6">
             <h2>Devil Bisounours</h2>
@@ -204,7 +198,6 @@
     </div>
 
     <script>
-        // Fonction pour jouer/arrêter la musique
         function toggleMusic(audioElement, button) {
             if (audioElement.paused) {
                 audioElement.play();
@@ -215,20 +208,18 @@
             }
         }
 
-        // Fonction pour démarrer le visualiseur
         function startVisualizer(audioElement, visualizer) {
             setInterval(() => {
                 const bars = visualizer.querySelectorAll('.bar');
                 if (!audioElement.paused) {
                     bars.forEach(bar => {
-                        const height = Math.random() * 100; // Simule le son avec une hauteur aléatoire
-                        bar.style.height = height + '%'; // Utilisation du pourcentage pour éviter le dépassement
+                        const height = Math.random() * 100; 
+                        bar.style.height = height + '%'; 
                     });
                 }
             }, 100);
         }
 
-        // Initialisation pour la musique 1 à 6
         ['1', '2', '3', '4', '5', '6'].forEach(num => {
             const playButton = document.getElementById(`play${num}`);
             const music = document.getElementById(`music${num}`);
@@ -277,6 +268,7 @@
                     <div class="option2"><a href="Noel.html">Décompte</a></div>
                     <div class="option2"><a href="musique.html">Musique</a></div>
                     <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
+                    <div class="option2"><a href="pf.html">Pile ou Face</a></div>
                     <div class="option2"><a href="cps.html">Test CPS</a></div>
                     <div class="option2"><a href="Bientot.html">A venir..</a></div>
                 </div>

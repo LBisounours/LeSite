@@ -69,10 +69,9 @@
             audio.play().catch(error => {
                 console.error('Erreur lors de la lecture de la musique:', error);
             });
-            document.body.removeEventListener('click', playMusic); // Empêche de jouer plusieurs fois
+            document.body.removeEventListener('click', playMusic);
         }
 
-        // Écouteur d'événement pour jouer la musique lors du premier clic
         document.body.addEventListener('click', playMusic);
     </script>
     <div class="clicker-section">
@@ -145,7 +144,6 @@
                 { name: 'Rayquaza', baseCost: 3500000, cps: 350000, image: 'Images/Pokemon/rayquaza.png' },
                 { name: 'Zéroïd', baseCost: 4000000, cps: 400000, image: 'Images/Pokemon/zeroid.png' }
             ],
-            // Ajoute les autres niveaux ici
         };
 
         const pokeballs = [
@@ -261,7 +259,7 @@
         font-size: 22px;
         font-weight: bold;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        position: relative; /* Permet d'utiliser left */
+        position: relative;
         top: -14px
     }
     </style>
@@ -283,6 +281,7 @@
                     <div class="option2"><a href="Noel.html">Décompte</a></div>
                     <div class="option2"><a href="musique.html">Musique</a></div>
                     <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
+                    <div class="option2"><a href="pf.html">Pile ou Face</a></div>
                     <div class="option2"><a href="cps.html">Test CPS</a></div>
                     <div class="option2"><a href="Bientot.html">A venir..</a></div>
                 </div>
