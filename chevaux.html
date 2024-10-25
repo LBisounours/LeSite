@@ -32,17 +32,20 @@
     <div class="container">
         <section>
             <iframe id="html5-game-frame" src="https://playzool.com/games/petitsChevauxSH/?fromPartner=popcom&amp;utm_source=popcom&amp;utm_medium=iframe&amp;lang=fr&amp;utm_campaign=jeux123.fr" 
-                    title="Les Petits Chevaux 🕹️ Jeux Gratuits sur Jeux123" scrolling="no" sandbox="allow-scripts allow-same-origin"></iframe>
+                    title="Les Petits Chevaux 🕹️ Jeux Gratuits sur Jeux123" scrolling="no" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
         </section>
     </div>
 </main>
 
 <script>
-    // Bloque les liens de redirection au sein de l'iframe
+    // Bloque uniquement les redirections externes de l'iframe tout en autorisant les pop-ups internes
     document.getElementById('html5-game-frame').addEventListener('load', function() {
-        const iframeDocument = document.getElementById('html5-game-frame').contentDocument;
-        iframeDocument.body.addEventListener('click', function(event) {
-            if (event.target.tagName === 'A') {
+        const iframeDocument = document.getElementById('html5-game-frame').contentWindow;
+
+        // Intercepte les tentatives de redirection hors de l'iframe
+        iframeDocument.addEventListener('click', function(event) {
+            const target = event.target.closest('a');
+            if (target && !target.href.includes('playzool.com')) {
                 event.preventDefault();
             }
         });
