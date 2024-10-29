@@ -3,117 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Chaînes</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <title>Derniers Vidéos et TikToks</title>
     <style>
-        .container {
-            position: relative;
-            left: -350px;
-            width: 300%; 
-            max-width: 1200px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            background-color: #3b3939a1;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(247, 205, 20, 0.868);
-            margin-bottom: 80px;
+
+        h1 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 40px;
         }
         iframe {
             width: 100%;
-            height: 580px;
-            border: none;
+            height: 315px;
+            margin: 10px 0;
+        }
+        .tiktok-embed {
+            width: 100%;
+            max-width: 500px;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-<main>
-    <div class="container">
-        <section>
-            <iframe id="html5-game-frame" src="https://playzool.com/games/petitsChevauxSH/" 
-                    title="Les Petits Chevaux 🕹️ Jeux Gratuits sur Jeux123" scrolling="no" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
-        </section>
+    <h1>Derniers Streams, Vidéos et TikToks de @le_bisounours_</h1>
+
+    <div class="section" id="twitch-streams">
+        <h2>Derniers Streams Twitch</h2>
+        <div id="streams"></div>
     </div>
-</main>
 
-<script>
-    // Bloque uniquement les redirections externes de l'iframe tout en autorisant les pop-ups internes
-    document.getElementById('html5-game-frame').addEventListener('load', function() {
-        const iframeDocument = document.getElementById('html5-game-frame').contentWindow;
+    <div class="section" id="youtube-videos">
+        <h2>Dernières Vidéos YouTube</h2>
+        <div id="youtube"></div>
+    </div>
 
-        // Intercepte les tentatives de redirection hors de l'iframe
-        iframeDocument.addEventListener('click', function(event) {
-            const target = event.target.closest('a');
-            if (target && !target.href.includes('playzool.com')) {
-                event.preventDefault();
+    <div class="section" id="tiktok-videos">
+        <h2>Derniers TikToks</h2>
+        <div id="tiktok"></div>
+    </div>
+
+    <script>
+        const twitchAccessToken = 'YOUR_TWITCH_ACCESS_TOKEN'; // Remplace par ton access token
+        const twitchClientId = 'd0znha82ffol2ig5awou5rgeetng8z'; // Remplace par ton client ID
+        const youtubeApiKey = 'AIzaSyAUTayyPnFTkgHEXwc64wUpSsJmLq7gzTk'; // Remplace par ta clé API YouTube
+
+        // Fonction pour récupérer les derniers streams Twitch
+        async function fetchTwitchStreams() {
+            const response = await fetch('https://api.twitch.tv/helix/streams?user_login=le_bisounours_', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${twitchAccessToken}`,
+                    'Client-ID': twitchClientId
+                }
+            });
+            const data = await response.json();
+            const streamsDiv = document.getElementById('streams');
+            if (data.data.length === 0) {
+                streamsDiv.innerHTML = '<p>Aucun stream en direct actuellement.</p>';
+            } else {
+                data.data.forEach(stream => {
+                    const streamElement = document.createElement('div');
+                    streamElement.innerHTML = `
+                        <h3>${stream.title}</h3>
+                        <iframe src="https://player.twitch.tv/?channel=${stream.user_name}&parent=localhost" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+                    `;
+                    streamsDiv.appendChild(streamElement);
+                });
             }
-        });
-    });
-</script>
+        }
 
-<style>
-    .profile-pics {
-        margin-left: 320px;
-        width: 50px;
-        height: 50px;
-        border-radius: 100%;
-        margin-right: 5px;
-    }
-    
-    .pseudos {
-        margin-right: 420px;
-        font-size: 22px;
-        font-weight: bold;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        position: relative;
-        top: -14px;
-    }
-</style>
+        // Fonction pour récupérer les dernières vidéos YouTube
+        async function fetchYoutubeVideos() {
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${youtubeApiKey}&channelId=UCrelGcQYRhaJYsf9RdOyBQQ&part=snippet,id&order=date&maxResults=3`);
+            const data = await response.json();
+            const youtubeDiv = document.getElementById('youtube');
+            data.items.forEach(video => {
+                if (video.id.kind === "youtube#video") {
+                    const videoElement = document.createElement('div');
+                    videoElement.innerHTML = `
+                        <h3>${video.snippet.title}</h3>
+                        <iframe src="https://www.youtube.com/embed/${video.id.videoId}" frameborder="0" allowfullscreen></iframe>
+                    `;
+                    youtubeDiv.appendChild(videoElement);
+                }
+            });
+        }
 
-<footer>
-    <a href="index.html" class="date-link">Accueil</a>
-    <a href="LeSite.html" class="date-link">Le Calendrier..</a>
-    <div class="profile-container">
-        <a href="https://www.twitch.tv/le_bisounours_">
-            <img src="Images/Bisou.jpg" alt="https://www.twitch.tv/le_bisounours_" class="profile-pics">
-            <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
-        </a>
-    </div>
-    <div class="dropdown2">
-        <button class="button2" onclick="toggleOptions('options2')">Autre</button>
-        <div id="options2" class="options">
-            <div class="option2"><a href="Noel.html">Décompte</a></div>
-            <div class="option2"><a href="musique.html">Musique</a></div>
-            <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
-            <div class="option2"><a href="pf.html">Pile ou Face</a></div>
-            <div class="option2"><a href="roulette.html">La Roulette</a></div>
-            <div class="option2"><a href="cps.html">Test CPS</a></div>
-            <div class="option2"><a href="Bientot.html">A venir..</a></div>
-        </div>
-    </div>
-    <div class="dropdown">
-        <button class="button" onclick="toggleOptions('options')">Jeux</button>
-        <div id="options" class="options">
-            <div class="option"><a href="chevaux.html">Petits Chevaux</a></div>
-            <div class="option"><a href="Morpion.html">Morpion</a></div>
-            <div class="option"><a href="Puissance4.html">Puissance4</a></div>
-            <div class="option"><a href="memories.html">Memory</a></div>
-            <div class="option"><a href="pokemon.html">PokemonGo</a></div>
-            <div class="option"><a href="clicker.html">PokeCliker</a></div>
-            <div class="option"><a href="pendu.html">JeuDuPendu</a></div>
-            <div class="option"><a href="geometriedash.html">GeometryDash</a></div>
-            <div class="option"><a href="chifumi.html">ChiFuMi</a></div>
-            <div class="option"><a href="Bientot.html">A venir..</a></div>
-        </div>
-    </div>
-</footer>  
+        // Fonction pour afficher les derniers TikToks
+        function fetchTikTokVideos() {
+            const tiktokDiv = document.getElementById('tiktok');
+            const tiktokUrls = [
+                'https://www.tiktok.com/@le_bisounours_/video/1234567890', // Remplace par les vrais liens
+                'https://www.tiktok.com/@le_bisounours_/video/1234567891',
+                'https://www.tiktok.com/@le_bisounours_/video/1234567892'
+            ];
+            tiktokUrls.forEach(url => {
+                const tiktokElement = document.createElement('div');
+                tiktokElement.innerHTML = `<blockquote class="tiktok-embed"><a href="${url}">Voir sur TikTok</a></blockquote>`;
+                tiktokDiv.appendChild(tiktokElement);
+            });
+        }
 
-<script>
-    function toggleOptions(optionId) {
-        const optionsDiv = document.getElementById(optionId);
-        optionsDiv.style.display = optionsDiv.style.display === "block" ? "none" : "block";
-    }
-</script>
+        // Appel des fonctions pour récupérer les données
+        fetchTwitchStreams();
+        fetchYoutubeVideos();
+        fetchTikTokVideos();
+    </script>
+
+    <script async src="https://www.tiktok.com/embed.js"></script>
 </body>
 </html>

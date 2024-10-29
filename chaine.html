@@ -6,12 +6,16 @@
     <title>Mes Chaînes</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="Images/TheStars.png">
-    <style>
-
+    <style> 
+        h2 {
+            margin-bottom: 0px;
+            text-align: center; /* Centre le titre */
+        }          
         .container {
             display: flex;
             justify-content: space-around;
-            margin-bottom: 20px;
+            flex-wrap: wrap; /* Permet de passer à la ligne si nécessaire */
+            margin-bottom: 20px; 
         }
 
         .box {
@@ -22,7 +26,7 @@
             padding: 20px;
             text-align: center;
             width: 200px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  
         }
 
         .box img {
@@ -43,7 +47,31 @@
         }
 
         .subscribe-button:hover {
-            background-color: #45a049;
+            background-color: #e52d2d;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .youtube-container, .tiktok-container {
+            display: flex;
+            flex-wrap: wrap; /* Permet de passer à la ligne si nécessaire */
+            justify-content: center; /* Centre les vidéos */
+        }
+
+        iframe {
+            width: 300px; /* Largeur des vidéos */
+            height: 169px; /* Hauteur des vidéos */
+            margin: 10px; /* Espacement entre les vidéos */
+            border: none; /* Supprime la bordure par défaut de l'iframe */
+        }
+
+        .tiktok-embed {
+            width: 338px; /* Largeur des TikToks */
+            height: 490px; /* Hauteur des TikToks */
+            margin: 10px; /* Espacement entre les TikToks */
+            margin-bottom: 50px;
         }
     </style>
 </head>
@@ -55,27 +83,74 @@
             <img src="Images/Youtube.png" alt="YouTube">
             <button class="subscribe-button" onclick="window.location.href='https://www.youtube.com/@le_bisounours_'">S'abonner</button>
         </div>
-        
         <div class="box">
             <img src="Images/Twitch.png" alt="Twitch">
             <button class="subscribe-button" onclick="window.location.href='https://www.twitch.tv/le_bisounours_'">S'abonner</button>
         </div>
-
         <div class="box">
             <img src="Images/TikTok.png" alt="TikTok">
             <button class="subscribe-button" onclick="window.location.href='https://www.tiktok.com/@le_bisounours_'">S'abonner</button>
         </div>
-        
         <div class="box">
             <img src="Images/Instagram.png" alt="Instagram">
-            <button class="subscribe-button" onclick="window.location.href='https://www.instagram.com/_killian_loiset_/'"">S'abonner</button>
+            <button class="subscribe-button" onclick="window.location.href='https://www.instagram.com/_killian_loiset_/'">S'abonner</button>
         </div>
-
         <div class="box">
             <img src="Images/Discord.png" alt="Discord">
-            <button class="subscribe-button" onclick="window.location.href='https://discord.gg/5Gpex55E8d'"">S'abonner</button>
+            <button class="subscribe-button" onclick="window.location.href='https://discord.gg/5Gpex55E8d'">Rejoindre</button>
         </div>
     </div>
+
+    <div class="section" id="youtube-videos">
+        <h2>Dernières Vidéos YouTube</h2>
+        <div class="youtube-container" id="youtube"></div>
+    </div>
+
+    <div class="section" id="tiktok-videos">
+        <h2>Derniers TikToks</h2>
+        <div class="tiktok-container" id="tiktok"></div>
+    </div>
+
+    <script>
+        const youtubeApiKey = 'AIzaSyAUTayyPnFTkgHEXwc64wUpSsJmLq7gzTk';
+
+        // Fonction pour récupérer les dernières vidéos YouTube
+        async function fetchYoutubeVideos() {
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${youtubeApiKey}&channelId=UCrelGcQYRhaJYsf9RdOyBQQ&part=snippet,id&order=date&maxResults=8`);
+            const data = await response.json();
+            const youtubeDiv = document.getElementById('youtube');
+            data.items.forEach(video => {
+                if (video.id.kind === "youtube#video") {
+                    const videoElement = document.createElement('div');
+                    videoElement.innerHTML = `
+                        <iframe src="https://www.youtube.com/embed/${video.id.videoId}" frameborder="0" allowfullscreen></iframe>
+                    `;
+                    youtubeDiv.appendChild(videoElement);
+                }
+            });
+        }
+
+        // Fonction pour afficher les derniers TikToks
+        function fetchTikTokVideos() {
+            const tiktokDiv = document.getElementById('tiktok');
+            const tiktokUrls = [
+                'https://www.tiktok.com/@le_bisounours_/video/7351493609448934688',
+                'https://www.tiktok.com/@le_bisounours_/video/7344739416247749920',
+                'https://www.tiktok.com/@le_bisounours_/video/7431203546432802080',
+                'https://www.tiktok.com/@le_bisounours_/video/7430402718620978464'
+            ];
+            tiktokUrls.forEach(url => {
+                const videoId = url.split('/').pop(); // Récupérer l'ID de la vidéo
+                const tiktokElement = document.createElement('div');
+                tiktokElement.innerHTML = `<iframe class="tiktok-embed" src="https://www.tiktok.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+                tiktokDiv.appendChild(tiktokElement);
+            });
+        }
+
+        // Appel des fonctions pour récupérer les données
+        fetchYoutubeVideos();
+        fetchTikTokVideos();
+    </script>
     <style>
         .profile-pics {
             margin-left: 320px;
@@ -94,7 +169,6 @@
             top: -14px
         }
         </style>
-        
         <body>
             <footer>
                 <a href="index.html" class="date-link">Acceuil</a>
@@ -110,6 +184,7 @@
                 <div class="dropdown2">
                     <button class="button2" onclick="toggleOptions('options2')">Autre</button>
                     <div id="options2" class="options">
+                        <div class="option2"><a href="chaine.html">Les Chaine</a></div>
                         <div class="option2"><a href="Noel.html">Décompte</a></div>
                         <div class="option2"><a href="musique.html">Musique</a></div>
                         <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
@@ -123,7 +198,6 @@
                     <div class="dropdown">
                         <button class="button" onclick="toggleOptions('options')">Jeux</button>
                         <div id="options" class="options">
-                            <div class="option"><a href="chevaux.html">Petits Chevaux</a></div>
                             <div class="option"><a href="Morpion.html">Morpion</a></div>
                             <div class="option"><a href="Puissance4.html">Puissance4</a></div>
                             <div class="option"><a href="memories.html">Memory</a></div>
@@ -149,3 +223,4 @@
             </footer>  
         </body>
         </html>
+        
