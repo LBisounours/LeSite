@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PokémonGo 👾</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/png" href="Images/TheStars.png">
+        <style>
+        .booster {
+            display: inline-block;
+            margin: 20px;
+            cursor: pointer;
+        }
+        .booster img {
+            width: 200px;
+            transition: transform 0.3s;
+        }
+        .booster img:hover {
+            transform: scale(1.1);
+        }
+        #carteEnGrand {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        #carteEnGrand img {
+            width: 300px;
+            max-height: 80%;
+            border: 5px solid white;
+            border-radius: 10px;
+        }
+        .cartes-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            margin-bottom: 100px;
+        }
+        .carte-summary {
+            margin: 10px;
+            text-align: center;
+        }
+        .carte-summary img {
+            width: 100px;
+            height: 140px;
+            object-fit: cover;
+        }
+        .compteur {
+            font-size: 0.9em;
+            color: #fffbfb;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #ffffff;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>Ouverture de Booster Pokémon</h1>
+        <p>Cliquez sur un booster pour l'ouvrir et découvrir vos cartes !</p>
+        <div class="booster">
+            <img src="Images/TCG/booster.png" alt="Booster Pokémon" id="booster">
+        </div>
+        <div id="carteEnGrand">
+            <img id="carteAffichee" src="" alt="Carte Pokémon">
+        </div>
+        <div class="message" id="message"></div>
+        <div class="cartes-container" id="cartesContainer"></div>
+
+        <script>
+            // Configuration des probabilités et des cartes par rareté
+            const rarities = [
+                { folder: "Images/TCG/PokeR1/", chance: 100, count: 102 },
+                { folder: "Images/TCG/PokeR2/", chance: 90, count: 68 },
+                { folder: "Images/TCG/PokeR3/", chance: 5, count: 41 },
+                { folder: "Images/TCG/PokeR4/", chance: 1.666, count: 15 },
+                { folder: "Images/TCG/PokeR5/", chance: 2.572, count: 24 },
+                { folder: "Images/TCG/PokeR6/", chance: 0.500, count: 29 },
+                { folder: "Images/TCG/PokeR7/", chance: 0.222, count: 4 },
+                { folder: "Images/TCG/PokeR8/", chance: 0.040, count: 3 }
+            ];
+
+            const booster = document.getElementById("booster");
+            const cartesContainer = document.getElementById("cartesContainer");
+            const message = document.getElementById("message");
+            const carteEnGrand = document.getElementById("carteEnGrand");
+            const carteAffichee = document.getElementById("carteAffichee");
+
+            let cartesTotales = {}; // Conserve l'historique des cartes obtenues
+            let cartes = [];
+            let currentIndex = 0;
+
+            booster.addEventListener("click", ouvrirBooster);
+            carteEnGrand.addEventListener("click", afficherCarteSuivante);
+
+            function ouvrirBooster() {
+                message.textContent = "Ouverture du booster...";
+                cartes = [];
+                currentIndex = 0;
+
+                setTimeout(() => {
+                    cartes = ouvrirCartes();
+                    afficherCarteSuivante();
+                }, 1000); // Délai pour simuler l'ouverture
+            }
+
+            function ouvrirCartes() {
+                const result = [];
+                for (let i = 0; i < 5; i++) {
+                    let carte = null;
+                    while (!carte) {
+                        carte = tirerCarte();
+                    }
+                    result.push(carte);
+                }
+                return result;
+            }
+
+            function tirerCarte() {
+                const random = Math.random() * 100;
+                let cumulativeChance = 0;
+
+                for (const rarity of rarities) {
+                    cumulativeChance += rarity.chance;
+                    if (random <= cumulativeChance) {
+                        const randomIndex = Math.floor(Math.random() * rarity.count) + 1;
+                        return `${rarity.folder}poke${randomIndex}.webp`;
+                    }
+                }
+
+                return null; // Si aucune carte n'est tirée (peu probable)
+            }
+
+            function afficherCarteSuivante() {
+                if (currentIndex < cartes.length) {
+                    carteAffichee.src = cartes[currentIndex];
+                    carteEnGrand.style.display = "flex";
+                    currentIndex++;
+                } else {
+                    carteEnGrand.style.display = "none";
+                    mettreAJourResumeCartes();
+                }
+            }
+
+            function mettreAJourResumeCartes() {
+                cartes.forEach(carte => {
+                    cartesTotales[carte] = (cartesTotales[carte] || 0) + 1;
+                });
+
+                cartesContainer.innerHTML = "";
+                for (const [carte, count] of Object.entries(cartesTotales)) {
+                    const carteElement = document.createElement("div");
+                    carteElement.classList.add("carte-summary");
+
+                    const img = document.createElement("img");
+                    img.src = carte;
+
+                    const compteur = document.createElement("div");
+                    compteur.classList.add("compteur");
+                    compteur.textContent = count > 1 ? `${count} exemplaires` : "1 exemplaire";
+
+                    carteElement.appendChild(img);
+                    carteElement.appendChild(compteur);
+                    cartesContainer.appendChild(carteElement);
+                }
+
+                message.textContent = "Vous avez obtenu les cartes suivantes :";
+            }
+        </script>
+<style>
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative; 
+        top: -14px
+    }
+    </style>
+    <body>
+        <footer>
+            <a href="index.html" class="date-link">Acceuil</a>
+            <a href="LeSite.html" class="date-link">Le Calendrier..</a>
+    
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="https://www.twitch.tv/le_bisounours_" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+    
+            <div class="dropdown2">
+                <button class="button2" onclick="toggleOptions('options2')">Autre</button>
+                <div id="options2" class="options">
+                    <div class="option2"><a href="chaine.html">Les Chaine</a></div>
+                    <div class="option2"><a href="Noel.html">Décompte</a></div>
+                    <div class="option2"><a href="musique.html">Musique</a></div>
+                    <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
+                    <div class="option2"><a href="pf.html">Pile ou Face</a></div>
+                    <div class="option2"><a href="roulette.html">La Roulette</a></div>
+                    <div class="option2"><a href="cps.html">Test CPS</a></div>
+                    <div class="option2"><a href="Bientot.html">A venir..</a></div>
+                </div>
+            </div>
+    
+                <div class="dropdown">
+                    <button class="button" onclick="toggleOptions('options')">Jeux</button>
+                    <div id="options" class="options">
+                        <div class="option"><a href="minecraft.html">Serveur MC</a></div>
+                        <div class="option"><a href="tcg.html">TCG Card</a></div>
+                        <div class="option"><a href="Morpion.html">Morpion</a></div>
+                        <div class="option"><a href="Puissance4.html">Puissance4</a></div>
+                        <div class="option"><a href="memories.html">Memory</a></div>
+                        <div class="option"><a href="pokemon.html">PokemonGo</a></div>
+                        <div class="option"><a href="clicker.html">PokeCliker</a></div>
+                        <div class="option"><a href="pendu.html">JeuDuPendu</a></div>
+                        <div class="option"><a href="geometriedash.html">GeometryDash</a></div>
+                        <div class="option"><a href="chifumi.html">ChiFuMi</a></div>
+                        <div class="option"><a href="Bientot.html">A venir..</a></div>
+                    </div>
+                </div>
+            
+                <script>
+                    function toggleOptions(optionId) {
+                        const optionsDiv = document.getElementById(optionId);
+                        if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
+                            optionsDiv.style.display = "block";
+                        } else {
+                            optionsDiv.style.display = "none";
+                        }
+                    }
+                </script>
+        </footer>  
+    </body>
+    </html>
+    
