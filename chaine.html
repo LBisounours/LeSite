@@ -151,78 +151,175 @@
         fetchYoutubeVideos();
         fetchTikTokVideos();
     </script>
-    <style>
-        .profile-pics {
-            margin-left: 320px;
-            width: 50px;
-            height: 50px;
-            border-radius: 100%;
-            margin-right: 5px;
-        }
-        
-        .pseudos {
-            margin-right: 420px;
-            font-size: 22px;
-            font-weight: bold;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            position: relative;
-            top: -14px
-        }
-        </style>
-        <body>
-            <footer>
-                <a href="index.html" class="date-link">Acceuil</a>
-                <a href="LeSite.html" class="date-link">Le Calendrier..</a>
-        
-                <div class="profile-container">
-                    <a href="https://www.twitch.tv/le_bisounours_">
-                        <img src="Images/Bisou.jpg" alt="https://www.twitch.tv/le_bisounours_" class="profile-pics">
-                        <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
-                    </a>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+
+    /* On évite tout autre changement de position pour le footer ou les menus déroulants */
+    .main-content {
+        flex-grow: 1;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
                 </div>
-        
-                <div class="dropdown2">
-                    <button class="button2" onclick="toggleOptions('options2')">Autre</button>
-                    <div id="options2" class="options">
-                        <div class="option2"><a href="chaine.html">Les Chaine</a></div>
-                        <div class="option2"><a href="Noel.html">Décompte</a></div>
-                        <div class="option2"><a href="musique.html">Musique</a></div>
-                        <div class="option2"><a href="clock.html">Alarme/Chrono</a></div>
-                        <div class="option2"><a href="pf.html">Pile ou Face</a></div>
-                        <div class="option2"><a href="roulette.html">La Roulette</a></div>
-                        <div class="option2"><a href="cps.html">Test CPS</a></div>
-                        <div class="option2"><a href="Bientot.html">A venir..</a></div>
-                    </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="Bientot.html">A venir..</a>
                 </div>
-        
-                    <div class="dropdown">
-                        <button class="button" onclick="toggleOptions('options')">Jeux</button>
-                        <div id="options" class="options">
-                            <div class="option"><a href="minecraft.html">Serveur MC</a></div>
-                            <div class="option"><a href="tcg.html">TCG Card</a></div>
-                            <div class="option"><a href="Morpion.html">Morpion</a></div>
-                            <div class="option"><a href="Puissance4.html">Puissance4</a></div>
-                            <div class="option"><a href="memories.html">Memory</a></div>
-                            <div class="option"><a href="pokemon.html">PokemonGo</a></div>
-                            <div class="option"><a href="clicker.html">PokeCliker</a></div>
-                            <div class="option"><a href="pendu.html">JeuDuPendu</a></div>
-                            <div class="option"><a href="geometriedash.html">GeometryDash</a></div>
-                            <div class="option"><a href="chifumi.html">ChiFuMi</a></div>
-                            <div class="option"><a href="Bientot.html">A venir..</a></div>
-                        </div>
-                    </div>
-                
-                    <script>
-                        function toggleOptions(optionId) {
-                            const optionsDiv = document.getElementById(optionId);
-                            if (optionsDiv.style.display === "none" || optionsDiv.style.display === "") {
-                                optionsDiv.style.display = "block";
-                            } else {
-                                optionsDiv.style.display = "none";
-                            }
-                        }
-                    </script>
-            </footer>  
-        </body>
-        </html>
-        
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>
