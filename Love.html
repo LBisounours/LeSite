@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lettre de Saint Valentin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #ffe6e6;
+            color: #800000;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .questions-container {
+            margin-bottom: 20px;
+        }
+
+        .questions-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            background-color: #800000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .questions-container button:hover {
+            background-color: #a00000;
+        }
+
+        .envelope {
+            width: 200px;
+            height: 120px;
+            margin: 20px auto;
+            background-image: url('Images/Enveloppe.png');
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            opacity: 1;
+            transition: opacity 1s ease; 
+        }
+
+        .letter-container {
+            display: none; 
+            margin: 20px auto;
+            width: 300px;
+            background: white;
+            border: 2px solid #800000;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            position: relative;
+            z-index: 10;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: transform 0.5s ease, opacity 0.5s ease; 
+        }
+
+        .image-container {
+            display: none;
+            width: 300px;
+            height: 200px;
+            margin: 20px auto;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 1s ease, transform 1s ease; 
+        }
+
+        .checkbox-container {
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .shredded {
+            animation: tear 1s forwards;
+        }
+
+        @keyframes tear {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Lettre de Saint Valentin</h1>
+    <div id="questions" class="questions-container">
+        <p>Voulez-vous ouvrir l'enveloppe ?</p>
+        <button onclick="handleQuestion(true)">Oui</button>
+        <button onclick="handleQuestion(false)">Non</button>
+    </div>
+    <div id="confirmQuestion" class="questions-container hidden">
+        <p>Êtes-vous sûr de vouloir ouvrir cette enveloppe ?</p>
+        <button onclick="confirmOpen(true)">Oui, je suis sûr</button>
+        <button onclick="confirmOpen(false)">Non</button>
+    </div>
+    <div class="envelope" id="envelope"></div>
+    <div id="letter" class="letter-container hidden"></div>
+    <div id="endImage" class="image-container" style="background-image: url('Images/End.png');"></div>
+
+    <script>
+        const questionsDiv = document.getElementById('questions');
+        const confirmQuestionDiv = document.getElementById('confirmQuestion');
+        const envelopeDiv = document.getElementById('envelope');
+        const letterDiv = document.getElementById('letter');
+        const endImageDiv = document.getElementById('endImage');
+        function handleQuestion(isYes) {
+            if (isYes) {
+                questionsDiv.style.display = 'none';
+                confirmQuestionDiv.style.display = 'block';
+            } else {
+                questionsDiv.style.display = 'none';
+                envelopeDiv.style.opacity = '0';
+                setTimeout(() => {
+                    envelopeDiv.style.display = 'none';
+                    showEndImage();
+                }, 1000);
+            }
+        }
+        function confirmOpen(isSure) {
+            if (isSure) {
+                confirmQuestionDiv.style.display = 'none';
+                openEnvelope();
+            } else {
+                confirmQuestionDiv.style.display = 'none';
+                questionsDiv.style.display = 'block';
+            }
+        }
+        function openEnvelope() {
+            envelopeDiv.style.opacity = '0';
+            setTimeout(() => {
+                envelopeDiv.style.display = 'none'; 
+                showLetter(); 
+            }, 1000); 
+        }
+        function showLetter() {
+            const letterContent = `
+                <p>Ma très chère Kaylia,</p>
+                <p>Mhm, j'ai pas l'habitude de faire ce genre de choses, mais j'avais envie de tenter le coup. Si je t'envoie cette lettre, c'est parce que j'aimerais envisager la possibilité d'avoir quelque chose de plus dans ma vie...</p>
+                <p>De t'avoir toi, d'avoir une relation peut-être plus qu'amicale, et voir où ça nous mène. J'aime ta présence et discuter avec toi. Tu es une personne géniale que j'apprécie énormément. J'ai envie de prendre soin de toi, de te protéger, d'être là pour toi, de faire de toi ma princesse, et peut-être devenir ton prince. ✨</p>
+                <p>Mais ceci ne se fait pas tout seul, c'est pour cela que cette lettre est pour toi. Et donc en ce jour, je te le demande...</p>
+                <p><strong>Veux-tu être ma Valentine ?</strong> (Et sortir avec moi)👉🏼👈🏼❤️</p>
+                <div class="checkbox-container">
+                    <label><input type="radio" name="valentine" onclick="handleAnswer(true)"> Oui</label>
+                    <label><input type="radio" name="valentine" onclick="handleAnswer(false)"> Non</label>
+                </div>
+                <p id="secretMessage" class="hidden">Le mot secret : "Éclipse" (Envoie moi ce message que je puisse connaître ta réponse)</p>
+            `;
+            letterDiv.innerHTML = letterContent;
+            letterDiv.style.display = 'block';
+            setTimeout(() => {
+                letterDiv.style.transform = 'scale(1)';
+                letterDiv.style.opacity = '1';
+            }, 50); 
+        }
+        function handleAnswer(isYes) {
+            const secretMessage = document.getElementById('secretMessage');
+            if (isYes) {
+                secretMessage.classList.remove('hidden');
+            } else {
+                shredLetter();
+            }
+        }
+        function shredLetter() {
+            letterDiv.classList.add('shredded');
+            setTimeout(() => {
+                letterDiv.style.display = 'none'; 
+                showEndImage(); 
+            }, 1000);
+        }
+        function showEndImage() {
+            endImageDiv.style.display = 'block';
+            setTimeout(() => {
+                endImageDiv.style.transform = 'scale(1)';
+                endImageDiv.style.opacity = '1';
+            }, 50);
+        }
+    </script>
+</body>
+</html>
