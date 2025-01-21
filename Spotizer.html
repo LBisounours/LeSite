@@ -82,11 +82,14 @@
 
         .time-control {
             flex-grow: 1;
-            margin: 0 15px; /* Réduit la marge à droite de la barre de temps */
+            margin: 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .slider {
-            width: 90%; /* Réduit la largeur de la barre de temps */
+            width: 90%;
         }
 
         .volume-control {
@@ -103,6 +106,12 @@
 
         .volume-control input {
             width: 150px;
+        }
+
+        /* Time Display */
+        .time-display {
+            font-size: 14px;
+            color: #fff;
         }
     </style>
 </head>
@@ -130,6 +139,7 @@
 
         <div class="time-control">
             <input type="range" id="seekBar" class="slider" min="0" max="100" value="0" oninput="seekMusic()">
+            <span class="time-display" id="currentTime">00:00</span> / <span class="time-display" id="totalTime">00:00</span>
         </div>
 
         <div class="volume-control">
@@ -146,6 +156,8 @@
         const seekBar = document.getElementById("seekBar");
         const volumeBar = document.getElementById("volumeBar");
         const playPauseButton = document.getElementById("playPauseButton");
+        const currentTimeDisplay = document.getElementById("currentTime");
+        const totalTimeDisplay = document.getElementById("totalTime");
 
         const musics = [
             { title: "Un quart d'heure", src: "Musique/Musique1.mp3", image: "Musique/Images/font1.png" },
@@ -239,6 +251,16 @@
         audioPlayer.addEventListener("timeupdate", () => {
             if (audioPlayer.duration) {
                 seekBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+
+                // Mise à jour du temps actuel
+                const currentMinutes = Math.floor(audioPlayer.currentTime / 60);
+                const currentSeconds = Math.floor(audioPlayer.currentTime % 60);
+                currentTimeDisplay.textContent = `${currentMinutes}:${currentSeconds < 10 ? '0' + currentSeconds : currentSeconds}`;
+
+                // Mise à jour du temps total
+                const totalMinutes = Math.floor(audioPlayer.duration / 60);
+                const totalSeconds = Math.floor(audioPlayer.duration % 60);
+                totalTimeDisplay.textContent = `${totalMinutes}:${totalSeconds < 10 ? '0' + totalSeconds : totalSeconds}`;
             }
         });
 
