@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotizer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Musique/Images/font.webp">
+    <style>
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #1DB954;
+        }
+
+        .music-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            margin-bottom: 80px;
+        }
+
+        .music-item {
+            width: 200px;
+            background-color: #1E1E1E;
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
+        }
+
+        .music-item:hover {
+            transform: scale(1.05);
+        }
+
+        .music-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .music-title {
+            padding: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        /* Player bar */
+        .player-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #282828;
+            padding: 10px 1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .controls button {
+            background: none;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .controls button img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .time-control {
+            flex-grow: 1;
+            margin: 0 15px; /* Réduit la marge à droite de la barre de temps */
+        }
+
+        .slider {
+            width: 90%; /* Réduit la largeur de la barre de temps */
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 10px;
+        }
+
+        .volume-control img {
+            width: 25px;
+            height: 25px;
+        }
+
+        .volume-control input {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 Spotizer 🎵</h1>
+
+    <div class="music-container" id="musicContainer">
+    </div>
+
+    <div class="player-bar">
+        <div class="controls">
+            <button onclick="previousTrack()">
+                <img src="Musique/Images/avant.png" alt="Précédent">
+            </button>
+            <button onclick="togglePlay()" id="playPauseButton">
+                <img src="Musique/Images/play.png" alt="Lecture">
+            </button>
+            <button onclick="nextTrack()">
+                <img src="Musique/Images/suivant.png" alt="Suivant">
+            </button>
+            <button onclick="toggleShuffle()">
+                <img src="Musique/Images/shuffle.png" alt="Aléatoire">
+            </button>
+        </div>
+
+        <div class="time-control">
+            <input type="range" id="seekBar" class="slider" min="0" max="100" value="0" oninput="seekMusic()">
+        </div>
+
+        <div class="volume-control">
+            <img src="Musique/Images/volume.png" alt="Volume">
+            <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1" oninput="changeVolume()">
+        </div>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        const musicContainer = document.getElementById("musicContainer");
+        const audioPlayer = document.getElementById("audioPlayer");
+        const seekBar = document.getElementById("seekBar");
+        const volumeBar = document.getElementById("volumeBar");
+        const playPauseButton = document.getElementById("playPauseButton");
+
+        const musics = [
+            { title: "Un quart d'heure", src: "Musique/Musique1.mp3", image: "Musique/Images/font1.png" },
+            { title: "Côte Ouest", src: "Musique/Musique2.mp3", image: "Musique/Images/font2.png" },
+            { title: "Harakiri", src: "Musique/Musique3.mp3", image: "Musique/Images/font3.png" },
+            { title: "Assieds toi", src: "Musique/Musique4.mp3", image: "Musique/Images/font4.png" },
+            { title: "Jamais su", src: "Musique/Musique5.mp3", image: "Musique/Images/font5.png" },
+            { title: "Soleil noir", src: "Musique/Musique6.mp3", image: "Musique/Images/font6.png" },
+            { title: "Un air qui fait", src: "Musique/Musique7.mp3", image: "Musique/Images/font7.png" },
+        ];
+
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        let isShuffle = false;
+
+        musics.forEach((music, index) => {
+            const musicItem = document.createElement("div");
+            musicItem.className = "music-item";
+            musicItem.innerHTML = ` 
+                <img src="${music.image}" alt="Pochette de ${music.title}">
+                <div class="music-title">${music.title}</div>
+            `;
+            musicItem.onclick = () => playTrack(index);
+            musicContainer.appendChild(musicItem);
+        });
+
+        function playTrack(index) {
+            currentTrackIndex = index;
+            audioPlayer.src = musics[currentTrackIndex].src;
+            audioPlayer.play();
+            isPlaying = true;
+            updatePlayPauseButton();
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                audioPlayer.pause();
+            } else {
+                audioPlayer.play();
+            }
+            isPlaying = !isPlaying;
+            updatePlayPauseButton();
+        }
+
+        function nextTrack() {
+            if (isShuffle) {
+                currentTrackIndex = Math.floor(Math.random() * musics.length);
+            } else {
+                currentTrackIndex = (currentTrackIndex + 1) % musics.length;
+            }
+            playTrack(currentTrackIndex);
+        }
+
+        function previousTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + musics.length) % musics.length;
+            playTrack(currentTrackIndex);
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            alert(isShuffle ? "Lecture aléatoire activée" : "Lecture aléatoire désactivée");
+        }
+
+        function seekMusic() {
+            const seekTo = audioPlayer.duration * (seekBar.value / 100);
+            audioPlayer.currentTime = seekTo;
+        }
+
+        function changeVolume() {
+            audioPlayer.volume = volumeBar.value;
+        }
+
+        function updatePlayPauseButton() {
+            const playPauseIcon = isPlaying ? "Musique/Images/pause.png" : "Musique/Images/play.png";
+            playPauseButton.querySelector("img").src = playPauseIcon;
+        }
+
+        audioPlayer.addEventListener("timeupdate", () => {
+            if (audioPlayer.duration) {
+                seekBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            }
+        });
+
+        audioPlayer.addEventListener("ended", () => {
+            nextTrack();
+        });
+    </script>
+</body>
+</html>
