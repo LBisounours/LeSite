@@ -19,8 +19,7 @@
             justify-content: center;
             gap: 20px;
             padding: 20px;
-            margin-bottom: 20px;
-            
+            margin-bottom: 80px;
         }
 
         .music-item {
@@ -30,8 +29,7 @@
             overflow: hidden;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s;
-            box-shadow: 0 0 10px rgba(247, 205, 20, 0.868);
+            transition: transform 0.2s, opacity 0.2s;
         }
 
         .music-item:hover {
@@ -48,6 +46,11 @@
             padding: 10px;
             font-size: 16px;
             color: #fff;
+        }
+
+        .music-item.disabled {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         /* Player bar */
@@ -87,11 +90,14 @@
             margin: 0 15px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
         }
 
         .slider {
-            width: 90%;
+            width: 50%;
+            margin: 0 10px;
         }
 
         .volume-control {
@@ -110,10 +116,10 @@
             width: 150px;
         }
 
-        /* Time Display */
-        .time-display {
+        .exclude-checkbox {
+            margin: 10px;
+            color: white;
             font-size: 14px;
-            color: #fff;
         }
     </style>
 </head>
@@ -121,11 +127,10 @@
     <h1>🎵 Spotizer 🎵</h1>
 
     <div class="music-container" id="musicContainer">
+        <!-- Musiques générées par JS -->
     </div>
-    
 
     <div class="player-bar">
-        
         <div class="controls">
             <button onclick="previousTrack()">
                 <img src="Musique/Images/avant.png" alt="Précédent">
@@ -139,11 +144,15 @@
             <button onclick="toggleShuffle()">
                 <img src="Musique/Images/shuffle.png" alt="Aléatoire">
             </button>
+            <button onclick="toggleLoop()" id="loopButton">
+                <img src="Musique/Images/boucle.png" alt="Boucle">
+            </button>
         </div>
 
         <div class="time-control">
+            <span id="currentTime">0:00</span>
             <input type="range" id="seekBar" class="slider" min="0" max="100" value="0" oninput="seekMusic()">
-            <span class="time-display" id="currentTime">00:00</span> / <span class="time-display" id="totalTime">00:00</span>
+            <span id="totalTime">0:00</span>
         </div>
 
         <div class="volume-control">
@@ -151,6 +160,7 @@
             <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1" oninput="changeVolume()">
         </div>
     </div>
+
     <audio id="audioPlayer"></audio>
 
     <script>
@@ -159,8 +169,9 @@
         const seekBar = document.getElementById("seekBar");
         const volumeBar = document.getElementById("volumeBar");
         const playPauseButton = document.getElementById("playPauseButton");
-        const currentTimeDisplay = document.getElementById("currentTime");
-        const totalTimeDisplay = document.getElementById("totalTime");
+        const loopButton = document.getElementById("loopButton");
+        const currentTimeLabel = document.getElementById("currentTime");
+        const totalTimeLabel = document.getElementById("totalTime");
 
         const musics = [
             { title: "Un quart d'heure", src: "Musique/Musique1.mp3", image: "Musique/Images/font1.png" },
@@ -229,12 +240,14 @@
             { title: "All Along the Watchtower (feat. Tom Ellis)", src: "Musique/Musique64.mp3", image: "Musique/Images/font64.png" },
             { title: "Sinnerman (feat. Tom Ellis)", src: "Musique/Musique65.mp3", image: "Musique/Images/font65.png" },
             { title: "Feel Good Inc.", src: "Musique/Musique66.mp3", image: "Musique/Images/font66.png" },
+            { title: "Give and Take", src: "Musique/Musique67.mp3", image: "Musique/Images/font67.png" },
         ];
         
-
         let currentTrackIndex = 0;
         let isPlaying = false;
         let isShuffle = false;
+        let isLooping = false;
+        const excludedTracks = new Set();
 
         musics.forEach((music, index) => {
             const musicItem = document.createElement("div");
@@ -242,12 +255,18 @@
             musicItem.innerHTML = ` 
                 <img src="${music.image}" alt="Pochette de ${music.title}">
                 <div class="music-title">${music.title}</div>
+                <label class="exclude-checkbox">
+                    <input type="checkbox" onchange="toggleExclude(${index})"> Exclure
+                </label>
             `;
             musicItem.onclick = () => playTrack(index);
             musicContainer.appendChild(musicItem);
+            musicItem.dataset.index = index;
         });
+        
 
         function playTrack(index) {
+            if (excludedTracks.has(index)) return;
             currentTrackIndex = index;
             audioPlayer.src = musics[currentTrackIndex].src;
             audioPlayer.play();
@@ -266,22 +285,30 @@
         }
 
         function nextTrack() {
-            if (isShuffle) {
-                currentTrackIndex = Math.floor(Math.random() * musics.length);
-            } else {
-                currentTrackIndex = (currentTrackIndex + 1) % musics.length;
-            }
+            do {
+                currentTrackIndex = isShuffle
+                    ? Math.floor(Math.random() * musics.length)
+                    : (currentTrackIndex + 1) % musics.length;
+            } while (excludedTracks.has(currentTrackIndex));
             playTrack(currentTrackIndex);
         }
 
         function previousTrack() {
-            currentTrackIndex = (currentTrackIndex - 1 + musics.length) % musics.length;
+            do {
+                currentTrackIndex = (currentTrackIndex - 1 + musics.length) % musics.length;
+            } while (excludedTracks.has(currentTrackIndex));
             playTrack(currentTrackIndex);
         }
 
         function toggleShuffle() {
             isShuffle = !isShuffle;
             alert(isShuffle ? "Lecture aléatoire activée" : "Lecture aléatoire désactivée");
+        }
+
+        function toggleLoop() {
+            isLooping = !isLooping;
+            audioPlayer.loop = isLooping;
+            alert(isLooping ? "Boucle activée" : "Boucle désactivée");
         }
 
         function seekMusic() {
@@ -298,32 +325,40 @@
             playPauseButton.querySelector("img").src = playPauseIcon;
         }
 
+        function toggleExclude(index) {
+            const musicItem = musicContainer.querySelector(`.music-item[data-index="${index}"]`);
+            if (excludedTracks.has(index)) {
+                excludedTracks.delete(index);
+                musicItem.classList.remove("disabled");
+            } else {
+                excludedTracks.add(index);
+                musicItem.classList.add("disabled");
+            }
+        }
+
         audioPlayer.addEventListener("timeupdate", () => {
             if (audioPlayer.duration) {
                 seekBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-
-                // Mise à jour du temps actuel
-                const currentMinutes = Math.floor(audioPlayer.currentTime / 60);
-                const currentSeconds = Math.floor(audioPlayer.currentTime % 60);
-                currentTimeDisplay.textContent = `${currentMinutes}:${currentSeconds < 10 ? '0' + currentSeconds : currentSeconds}`;
-
-                // Mise à jour du temps total
-                const totalMinutes = Math.floor(audioPlayer.duration / 60);
-                const totalSeconds = Math.floor(audioPlayer.duration % 60);
-                totalTimeDisplay.textContent = `${totalMinutes}:${totalSeconds < 10 ? '0' + totalSeconds : totalSeconds}`;
+                currentTimeLabel.textContent = formatTime(audioPlayer.currentTime);
+                totalTimeLabel.textContent = formatTime(audioPlayer.duration);
             }
         });
 
         audioPlayer.addEventListener("ended", () => {
-            nextTrack();
+            if (!isLooping) nextTrack();
         });
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
+            return `${minutes}:${secs}`;
+        }
     </script>
-    <div style="text-align: center; margin-bottom: 100px;">
+<div style="text-align: center; margin-bottom: 100px;">
         <button onclick="window.location.href='musique.html'" style="padding: 10px 20px; background-color: #6f94ea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
             Retour Au Site
         </button>
     </div>
-    
-    
+
 </body>
 </html>
