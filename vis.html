@@ -100,15 +100,27 @@
     <audio id="vis-sound" src="Images/Son/vis.mp3"></audio>
 
     <script>
-        const couleurs = ["red", "yellow", "purple", "brown", "pink", "green", "orange", "blue"];
+        const couleurs = {
+            "red": "Rouge",
+            "yellow": "Jaune",
+            "purple": "Violet",
+            "brown": "Marron",
+            "pink": "Rose",
+            "green": "Vert",
+            "orange": "Orange",
+            "blue": "Bleu"
+        };
+
         let couleursRestantes = [];
         let boiteActive = null;
         let visRestantes = 0;
+        let isBoiteActive = false;
+        let isCooldown = false;  // Variable pour gérer le cooldown entre les clics
 
         function initGame() {
             document.getElementById("game-area").innerHTML = "";
             document.getElementById("boite-container").innerHTML = "";
-            couleursRestantes = [...couleurs].sort(() => Math.random() - 0.5);
+            couleursRestantes = Object.keys(couleurs).sort(() => Math.random() - 0.5);
             visRestantes = 0;
             spawnVis();
             afficherNouvelleBoite();
@@ -119,6 +131,8 @@
                 setTimeout(initGame, 1000);
                 return;
             }
+
+            if (isBoiteActive) return;
 
             let couleur = couleursRestantes.shift();
             let boite = document.createElement("div");
@@ -133,9 +147,10 @@
             }
             slots += '</div>';
 
-            boite.innerHTML = `<span>${couleur.toUpperCase()}</span>${slots}`;
+            boite.innerHTML = `<span>${couleurs[couleur]}</span>${slots}`;
             document.getElementById("boite-container").appendChild(boite);
             boiteActive = boite;
+            isBoiteActive = true;
         }
 
         function spawnVis() {
@@ -145,7 +160,7 @@
 
             let placedPositions = [];
 
-            couleurs.forEach(couleur => {
+            Object.keys(couleurs).forEach(couleur => {
                 for (let i = 0; i < 3; i++) {
                     let vis = document.createElement("div");
                     vis.classList.add("vis");
@@ -182,6 +197,14 @@
         }
 
         function handleVisClick(vis) {
+            if (isCooldown) return;  // Si le cooldown est activé, on ignore le clic
+
+            isCooldown = true;  // Active le cooldown
+
+            setTimeout(() => {
+                isCooldown = false;  // Désactive le cooldown après 1 seconde
+            }, 500);  // Timeout de 1 seconde, ajustez selon le besoin
+
             let couleur = vis.dataset.couleur;
 
             if (boiteActive && boiteActive.dataset.couleur === couleur) {
@@ -215,6 +238,7 @@
                             setTimeout(() => {
                                 boiteActive.remove();
                                 boiteActive = null;
+                                isBoiteActive = false;
                                 afficherNouvelleBoite();
                             }, 500);
                         }
@@ -228,22 +252,19 @@
 
         initGame();
     </script>
-    <body>
-        <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
-    
-        <script>
-            const audio = document.getElementById('background-music');
-    
-            function playMusic() {
-                audio.play().catch(error => {
-                    console.error('Erreur lors de la lecture de la musique:', error);
-                });
-                document.body.removeEventListener('click', playMusic);
-            }
-    
-            document.body.addEventListener('click', playMusic);
-        </script>
-    </body>
+    <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
 
+    <script>
+        const audio = document.getElementById('background-music');
+
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic);
+        }
+
+        document.body.addEventListener('click', playMusic);
+    </script>
 </body>
 </html>
