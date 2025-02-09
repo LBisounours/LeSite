@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu des Vis</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-area {
+            position: relative;
+            width: 90vw;
+            height: 60vh;
+            max-width: 600px;
+            border: 2px solid red;
+            background: url('Images/fondvis.png') center/cover no-repeat;
+            margin-bottom: 10px;
+            touch-action: manipulation;
+        }
+        .vis {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: rgb(53, 50, 50);
+            text-shadow: 1px 1px 2px black;
+            transition: transform 0.4s ease, left 0.5s ease, top 0.5s ease;
+        }
+        .vis.wrong { animation: shake 0.3s ease; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        #boite-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 150px;
+        }
+        .boite {
+            width: 140px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid black;
+            padding: 10px;
+        }
+        .boite span {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+        .boite .contenu {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .boite .contenu .slot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px dashed rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.3);
+            font-size: 22px;
+            font-weight: bold;
+            color: black;
+        }
+        .boite .contenu .filled { border: none; }
+    </style>
+</head>
+<body>
+
+    <div id="game-area"></div>
+
+    <div id="boite-container"></div>
+
+    <audio id="vis-sound" src="Images/Son/vis.mp3"></audio>
+
+    <script>
+        const couleurs = ["red", "yellow", "purple", "brown", "pink", "green", "orange", "blue"];
+        let couleursRestantes = [];
+        let boiteActive = null;
+        let visRestantes = 0;
+
+        function initGame() {
+            document.getElementById("game-area").innerHTML = "";
+            document.getElementById("boite-container").innerHTML = "";
+            couleursRestantes = [...couleurs].sort(() => Math.random() - 0.5);
+            visRestantes = 0;
+            spawnVis();
+            afficherNouvelleBoite();
+        }
+
+        function afficherNouvelleBoite() {
+            if (couleursRestantes.length === 0) {
+                setTimeout(initGame, 1000);
+                return;
+            }
+
+            let couleur = couleursRestantes.shift();
+            let boite = document.createElement("div");
+            boite.classList.add("boite");
+            boite.style.backgroundColor = couleur;
+            boite.dataset.couleur = couleur;
+            boite.dataset.count = 0;
+
+            let slots = '<div class="contenu">';
+            for (let i = 0; i < 3; i++) {
+                slots += '<div class="slot">+</div>';
+            }
+            slots += '</div>';
+
+            boite.innerHTML = `<span>${couleur.toUpperCase()}</span>${slots}`;
+            document.getElementById("boite-container").appendChild(boite);
+            boiteActive = boite;
+        }
+
+        function spawnVis() {
+            const gameArea = document.getElementById("game-area");
+            gameArea.innerHTML = "";
+            visRestantes = 0;
+
+            let placedPositions = [];
+
+            couleurs.forEach(couleur => {
+                for (let i = 0; i < 3; i++) {
+                    let vis = document.createElement("div");
+                    vis.classList.add("vis");
+                    vis.style.backgroundColor = couleur;
+                    vis.dataset.couleur = couleur;
+                    vis.innerText = "+";
+
+                    let x, y, overlapping;
+                    do {
+                        overlapping = false;
+                        x = Math.random() * (gameArea.clientWidth - 50);
+                        y = Math.random() * (gameArea.clientHeight - 50);
+
+                        for (let pos of placedPositions) {
+                            let dx = pos.x - x;
+                            let dy = pos.y - y;
+                            if (Math.sqrt(dx * dx + dy * dy) < 45) {
+                                overlapping = true;
+                                break;
+                            }
+                        }
+                    } while (overlapping);
+
+                    placedPositions.push({ x, y });
+
+                    vis.style.left = `${x}px`;
+                    vis.style.top = `${y}px`;
+
+                    vis.addEventListener("click", () => handleVisClick(vis));
+                    gameArea.appendChild(vis);
+                    visRestantes++;
+                }
+            });
+        }
+
+        function handleVisClick(vis) {
+            let couleur = vis.dataset.couleur;
+
+            if (boiteActive && boiteActive.dataset.couleur === couleur) {
+                let slots = boiteActive.querySelectorAll(".slot:not(.filled)");
+                if (slots.length > 0) {
+                    let slot = slots[0];
+                    slot.classList.add("filled");
+                    slot.style.backgroundColor = couleur;
+                    slot.innerText = "+";
+                    boiteActive.dataset.count++;
+
+                    let boiteRect = boiteActive.getBoundingClientRect();
+                    let slotRect = slot.getBoundingClientRect();
+                    let visRect = vis.getBoundingClientRect();
+
+                    let offsetX = slotRect.left - visRect.left;
+                    let offsetY = slotRect.top - visRect.top;
+
+                    vis.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                    vis.style.transition = "transform 0.5s ease";
+
+                    let sound = document.getElementById("vis-sound");
+                    sound.currentTime = 0;
+                    sound.play();
+
+                    setTimeout(() => {
+                        vis.remove();
+                        visRestantes--;
+
+                        if (boiteActive.dataset.count == 3) {
+                            setTimeout(() => {
+                                boiteActive.remove();
+                                boiteActive = null;
+                                afficherNouvelleBoite();
+                            }, 500);
+                        }
+                    }, 500);
+                }
+            } else {
+                vis.classList.add("wrong");
+                setTimeout(() => vis.classList.remove("wrong"), 300);
+            }
+        }
+
+        initGame();
+    </script>
+    <body>
+        <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+    
+        <script>
+            const audio = document.getElementById('background-music');
+    
+            function playMusic() {
+                audio.play().catch(error => {
+                    console.error('Erreur lors de la lecture de la musique:', error);
+                });
+                document.body.removeEventListener('click', playMusic);
+            }
+    
+            document.body.addEventListener('click', playMusic);
+        </script>
+    </body>
+
+</body>
+</html>
