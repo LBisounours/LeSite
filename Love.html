@@ -145,16 +145,17 @@
         }
         function showLetter() {
             const letterContent = `
-                <p>Ma très chère Valentine,</p>
-                <p>Mhm, j'ai pas l'habitude de faire ce genre de choses, mais j'avais envie de tenter le coup. Si je t'envoie cette lettre, c'est parce que j'aimerais envisager la possibilité d'avoir quelque chose de plus dans ma vie...</p>
-                <p>De t'avoir toi, d'avoir une relation peut-être plus qu'amicale, et voir où ça nous mène. J'aime ta présence et discuter avec toi. Tu es une personne géniale que j'apprécie énormément. J'ai envie de prendre soin de toi, de te protéger, d'être là pour toi, de faire de toi ma princesse, et peut-être devenir ton prince. ✨</p>
-                <p>Mais ceci ne se fait pas tout seul, c'est pour cela que cette lettre est pour toi. Et donc en ce jour, je te le demande...</p>
-                <p><strong>Veux-tu être ma Valentine ?</strong> (Et sortir avec moi)👉🏼👈🏼❤️</p>
-                <div class="checkbox-container">
-                    <label><input type="radio" name="valentine" onclick="handleAnswer(true)"> Oui</label>
-                    <label><input type="radio" name="valentine" onclick="handleAnswer(false)"> Non</label>
-                </div>
-                <p id="secretMessage" class="hidden">Le mot secret : "Éclipse" (Envoie moi ce message que je puisse connaître ta réponse)</p>
+                <p>Ma chère Syndelle,</p>
+        <p>J'espère que tu vas bien ! Si je t'écris aujourd’hui, c’est parce que j’aimerais te proposer quelque chose…</p>
+        <p>Tu es une personne géniale avec qui j’adore discuter et passer du temps. Franchement, t’avoir dans ma vie, c’est un vrai plaisir, et je me suis dit… pourquoi ne pas rendre cette Saint-Valentin encore plus sympa ? 😊</p>
+        <p>Alors, en toute simplicité, je te pose la question…</p>
+        <p><strong>Veux-tu être ma Valentine ?</strong> 💖 (Promis, pas d’engagement à vie, juste une occasion de passer un bon moment !) 😆</p>
+        <div class="checkbox-container">
+            <label><input type="radio" name="valentine" onclick="handleAnswer(true)"> Oui</label>
+            <label><input type="radio" name="valentine" onclick="handleAnswer(false)"> Non</label>
+        </div>
+        <p id="secretMessage" class="hidden">Le mot secret : "Éclipse" (Envoie-moi ce message pour me donner ta réponse) 🌙</p>
+
             `;
             letterDiv.innerHTML = letterContent;
             letterDiv.style.display = 'block';
