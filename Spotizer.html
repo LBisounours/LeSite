@@ -426,12 +426,12 @@
       navigator.mediaSession.setActionHandler('pause', togglePlay);
       navigator.mediaSession.setActionHandler('previoustrack', previousTrack);
       navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
-      //navigator.mediaSession.setActionHandler('seekbackward', function() {
-        //audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 1000, 0);
-      //});
-      //navigator.mediaSession.setActionHandler('seekforward', function() {
-        //audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration);
-      //});
+      navigator.mediaSession.setActionHandler('seekbackward', function() {
+        audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 1000, 0);
+      });
+      navigator.mediaSession.setActionHandler('seekforward', function() {
+        audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 1000, audioPlayer.duration);
+      });
     }
   </script>
   <div style="text-align: center; margin-bottom: 100px;">
