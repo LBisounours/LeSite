@@ -48,14 +48,12 @@
       opacity: 0.5;
       pointer-events: none;
     }
-
     .music-item.current {
       border: 3px solid #f3d708;
       box-shadow: 0 0 15px 5px rgba(255, 183, 1, 0.7);
       transform: scale(1.08);
     }
-
-    /* Player bar */
+    /* Barre du lecteur */
     .player-bar {
       position: fixed;
       bottom: 0;
@@ -68,14 +66,12 @@
       justify-content: space-between;
       box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5);
     }
-
     .controls-volume-container {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    
     .controls {
       display: flex;
       align-items: center;
@@ -93,7 +89,7 @@
     }
     .time-control {
       flex-grow: 1;
-      margin: 0px;
+      margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -122,28 +118,29 @@
       color: white;
       font-size: 14px;
     }
+    /* Titre de la piste en cours, fixé au-dessus de la barre */
     #currentTrack {
-  position: fixed;
-  bottom: 50px; /* Une seule déclaration pour bottom */
-  left: 40px;
-  width: 100%;
-  text-align: center;
-  color: white;
-  font-size: 32px;
-  z-index: 1000;
-  text-shadow: 2px 2px 4px #ff0000; /* Ombre jaune */
-}
+      position: fixed;
+      bottom: 50px; /* Place le titre juste au-dessus de la barre */
+      left: 0;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-size: 32px;
+      z-index: 1000;
+      text-shadow: 2px 2px 4px #ff0000; /* Ombre rouge, ajustez selon vos goûts */
+    }
   </style>
 </head>
 <body>
   <h1>🎵 Spotizer 🎵</h1>
 
   <div class="music-container" id="musicContainer">
-    <!-- Vos éléments musicaux -->
+    <!-- Les éléments musicaux seront générés ici -->
   </div>
 
-  <!-- Titre de la musique en cours fixé juste au-dessus de la barre -->
-  <div id="currentTrack"> </div>
+  <!-- Titre de la musique en cours fixé au-dessus de la barre -->
+  <div id="currentTrack"></div>
 
   <!-- Barre du lecteur -->
   <div class="player-bar">
@@ -306,6 +303,21 @@
       currentTrackDisplay.textContent = currentMusic.title;
     }
 
+    // Met à jour les métadonnées pour l'interface verrouillée (iOS notamment)
+    function updateMediaSessionMetadata() {
+      if ('mediaSession' in navigator) {
+        const currentMusic = musics[currentTrackIndex];
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: currentMusic.title,
+          artist: 'Artiste inconnu', // Remplacez par l'artiste si disponible
+          album: 'Spotizer',
+          artwork: [
+            { src: currentMusic.image, sizes: '512x512', type: 'image/png' }
+          ]
+        });
+      }
+    }
+
     function playTrack(index) {
       if (excludedTracks.has(index)) return;
       currentTrackIndex = index;
@@ -315,6 +327,7 @@
       updatePlayPauseButton();
       updateSiteInfo();
       updateCurrentTrackDisplay();
+      updateMediaSessionMetadata(); // Mise à jour des métadonnées
 
       // Retirer la classe "current" de tous les items
       document.querySelectorAll(".music-item").forEach(item => {
@@ -405,6 +418,20 @@
       const minutes = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
       return `${minutes}:${secs}`;
+    }
+
+    // Configuration des gestionnaires d'actions pour l'interface verrouillée
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setActionHandler('play', togglePlay);
+      navigator.mediaSession.setActionHandler('pause', togglePlay);
+      navigator.mediaSession.setActionHandler('previoustrack', previousTrack);
+      navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
+      navigator.mediaSession.setActionHandler('seekbackward', function() {
+        audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0);
+      });
+      navigator.mediaSession.setActionHandler('seekforward', function() {
+        audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration);
+      });
     }
   </script>
   <div style="text-align: center; margin-bottom: 100px;">
