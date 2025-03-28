@@ -48,13 +48,12 @@
       opacity: 0.5;
       pointer-events: none;
     }
-
+    /* Style pour l'item courant */
     .music-item.current {
-      border: 3px solid #f3d708;
-      box-shadow: 0 0 15px 5px rgba(255, 183, 1, 0.7);
+      border: 3px solid #1DB954;
+      box-shadow: 0 0 15px 5px rgba(29, 185, 84, 0.7);
       transform: scale(1.08);
     }
-
     /* Player bar */
     .player-bar {
       position: fixed;
@@ -64,22 +63,21 @@
       background-color: #282828;
       padding: 10px 1px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
       box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5);
     }
-
     .controls-volume-container {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    
     .controls {
       display: flex;
       align-items: center;
       gap: 15px;
+      margin-left: 15px;
     }
     .controls button {
       background: none;
@@ -92,8 +90,8 @@
       height: 40px;
     }
     .time-control {
-      flex-grow: 1;
-      margin: 0px;
+      width: 100%;
+      margin-top: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -108,7 +106,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-right: 10px;
+      margin-right: 15px;
     }
     .volume-control img {
       width: 25px;
@@ -122,31 +120,19 @@
       color: white;
       font-size: 14px;
     }
-    #currentTrack {
-  position: fixed;
-  bottom: 50px; /* Une seule déclaration pour bottom */
-  left: 40px;
-  width: 100%;
-  text-align: center;
-  color: white;
-  font-size: 32px;
-  z-index: 1000;
-  text-shadow: 2px 2px 4px #ff0000; /* Ombre jaune */
-}
   </style>
 </head>
 <body>
   <h1>🎵 Spotizer 🎵</h1>
 
   <div class="music-container" id="musicContainer">
-    <!-- Vos éléments musicaux -->
   </div>
-
-  <!-- Titre de la musique en cours fixé juste au-dessus de la barre -->
-  <div id="currentTrack"> </div>
 
   <!-- Barre du lecteur -->
   <div class="player-bar">
+    <!-- Affichage du titre de la musique en cours -->
+    <div id="currentTrack" style="text-align: center; color: white; font-size: 16px; margin-bottom: 10px;"></div>
+    
     <div class="controls-volume-container">
       <div class="controls">
         <button onclick="previousTrack()">
@@ -165,17 +151,17 @@
           <img src="Musique/Images/boucle.png" alt="Boucle">
         </button>
       </div>
-
-      <div class="time-control">
-        <span id="currentTime">0:00</span>
-        <input type="range" id="seekBar" class="slider" min="0" max="100" value="0" oninput="seekMusic()">
-        <span id="totalTime">0:00</span>
-      </div>
-
       <div class="volume-control">
         <img src="Musique/Images/volume.png" alt="Volume">
         <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="1" oninput="changeVolume()">
       </div>
+    </div>
+    
+    <!-- Barre de temps -->
+    <div class="time-control">
+      <span id="currentTime">0:00</span>
+      <input type="range" id="seekBar" class="slider" min="0" max="100" value="0" oninput="seekMusic()">
+      <span id="totalTime">0:00</span>
     </div>
   </div>
 
