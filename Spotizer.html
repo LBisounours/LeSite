@@ -289,7 +289,7 @@
     // Met à jour le titre de la page et l'icône selon la musique en cours
     function updateSiteInfo() {
       const currentMusic = musics[currentTrackIndex];
-      document.title = `🎵 ${currentMusic.title} - Spotizer`;
+      document.title = `🎵 ${currentMusic.title}`;
       const favicon = document.querySelector("link[rel='icon']");
       if (favicon) {
         favicon.href = currentMusic.image;
@@ -309,7 +309,7 @@
         const currentMusic = musics[currentTrackIndex];
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentMusic.title,
-          artist: 'Artiste inconnu', // Remplacez par l'artiste si disponible
+          artist: 'Le_Bisounours_',
           album: 'Spotizer',
           artwork: [
             { src: currentMusic.image, sizes: '512x512', type: 'image/png' }
