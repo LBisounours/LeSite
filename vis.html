@@ -266,7 +266,107 @@
         document.body.addEventListener('click', playMusic);
     </script>
 
+    <style>
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
     
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+
+</style>
+
 <body>
     <div class="main-content">
         <!-- Your content here -->
@@ -276,7 +376,7 @@
         <!-- Left Section (Accueil / Calendrier) -->
         <div class="footer-left">
             <a href="index.html">Accueil</a>
-            <a href="Date.html">Les Dates..</a>
+            <a href="LeSite.html">Le Calendrier..</a>
         </div>
 
         <!-- Center Section (Profile) -->
