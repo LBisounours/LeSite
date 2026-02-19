@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock ⏰</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #141414;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: row; 
+            flex-wrap: wrap; 
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .section {
+            background-color: #6f94ea;
+         padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(247, 205, 20, 0.868);
+            width: 300px;
+            margin: 10px; 
+        }
+        h1 {
+            text-align: center;
+            color: #2e2d2d;
+            margin-bottom: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .stopwatch-controls button {
+            width: 30%;
+        }
+        .stopwatch-display {
+            font-size: 48px;
+            text-align: center;
+        }
+        .countdown {
+            font-size: 18px;
+            color: red;
+        }
+        button {
+            background-color: #f22d2d;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+        button:hover {
+            background-color: #f22d2d;
+        }
+        select {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="section">
+        <h1>Configurer une Alarme</h1>
+        <label for="alarmTime">Choisir l'heure de l'alarme :</label>
+        <input type="time" id="alarmTime">
+        
+        <label for="alarmSound">Choisir une sonnerie :</label>
+        <select id="alarmSound">
+            <option value="Alarm-Morning.mp3">Alarme Morning</option>
+            <option value="son1.mp3">C'est nous les Bloods</option>
+            <option value="son2.mp3">Lofi Anime</option>
+            <option value="son4.mp3">Sad Of Bisounours</option>
+            <option value="DevilBisounours.mp3">Devil Bisounours</option>
+            <option value="TheStarsCousins.mp3">The Stars Cousins</option>
+            <option value="LG.mp3">LG</option>
+            <option value="HunterxHunter.mp3">Hunter X Hunter</option>
+            <option value="Oshinoko.mp3">Oshinoko</option>
+            <option value="wednesday.mp3">Mercredi</option>
+            <option value="iPhone-12-Panamera.mp3">Iphone12 Panamera</option>
+            <option value="LG.mp3">LG</option>
+        </select>
+
+        <button onclick="setAlarm()">Définir l'alarme</button>
+
+        <div id="alarmMessage"></div>
+        <div id="alarmCountdown" class="countdown"></div>
+    </div>
+
+    <div class="section">
+        <h1>Configurer un Minuteur</h1>
+        <label for="timerHours">Heures :</label>
+        <input type="number" id="timerHours" min="0" placeholder="Heures">
+        <label for="timerMinutes">Minutes :</label>
+        <input type="number" id="timerMinutes" min="0" placeholder="Minutes">
+        <label for="timerSeconds">Secondes :</label>
+        <input type="number" id="timerSeconds" min="0" placeholder="Secondes">
+
+        <label for="timerSound">Choisir une sonnerie :</label>
+        <select id="timerSound">
+            <option value="Alarm-Morning.mp3">Alarme Morning</option>
+            <option value="son1.mp3">C'est nous les Bloods</option>
+            <option value="son2.mp3">Lofi Anime</option>
+            <option value="son4.mp3">Sad Of Bisounours</option>
+            <option value="DevilBisounours.mp3">Devil Bisounours</option>
+            <option value="TheStarsCousins.mp3">The Stars Cousins</option>
+            <option value="LG.mp3">LG</option>
+            <option value="HunterxHunter.mp3">Hunter X Hunter</option>
+            <option value="Oshinoko.mp3">Oshinoko</option>
+            <option value="wednesday.mp3">Mercredi</option>
+            <option value="iPhone-12-Panamera.mp3">Iphone12 Panamera</option>
+            <option value="LG.mp3">LG</option>
+        </select>
+
+        <button onclick="setTimer()">Démarrer le minuteur</button>
+
+        <div id="timerMessage"></div>
+        <div id="timerCountdown" class="countdown"></div>
+    </div>
+
+    <div class="section">
+        <h1>Chronomètre</h1>
+        <div class="stopwatch-display" id="stopwatchDisplay">00:00:00.000</div>
+        <div class="stopwatch-controls">
+            <button onclick="startStopwatch()">Démarrer</button>
+            <button onclick="pauseStopwatch()">Pause</button>
+            <button onclick="resetStopwatch()">Réinitialiser</button>
+        </div>
+    </div>
+
+    <audio id="alarmAudio"></audio>
+
+    <script>
+        let alarmTimeout, timerTimeout, alarmInterval, timerInterval;
+        let alarmSound;
+
+        function setAlarm() {
+            const alarmTime = document.getElementById('alarmTime').value;
+            const alarmSound = document.getElementById('alarmSound').value;
+            const alarmAudio = document.getElementById('alarmAudio');
+            
+            alarmAudio.src = `Images/Son/${alarmSound}`;
+            alarmAudio.load();
+
+            if (alarmTime) {
+                const now = new Date();
+                const alarmDate = new Date();
+
+                const [hours, minutes] = alarmTime.split(':').map(Number);
+                alarmDate.setHours(hours);
+                alarmDate.setMinutes(minutes);
+                alarmDate.setSeconds(0);
+
+                const timeToAlarm = alarmDate.getTime() - now.getTime();
+
+                if (timeToAlarm > 0) {
+                    clearInterval(alarmInterval); 
+                    alarmTimeout = setTimeout(() => {
+                        alarmAudio.play();
+                    }, timeToAlarm);
+
+                    document.getElementById('alarmMessage').innerText = `Alarme définie pour ${alarmTime}`;
+                    alarmInterval = setInterval(() => updateAlarmCountdown(alarmDate), 1000);
+                } else {
+                    alert('L\'heure choisie est déjà passée.');
+                }
+            } else {
+                alert('Veuillez choisir une heure pour l\'alarme.');
+            }
+        }
+
+        function updateAlarmCountdown(alarmDate) {
+            const now = new Date();
+            const timeToAlarm = alarmDate.getTime() - now.getTime();
+
+            if (timeToAlarm > 0) {
+                document.getElementById('alarmCountdown').innerText = `Temps restant : ${formatTime(timeToAlarm)}`;
+            } else {
+                clearInterval(alarmInterval);
+                document.getElementById('alarmCountdown').innerText = '';
+            }
+        }
+
+        function setTimer() {
+            const timerHours = parseInt(document.getElementById('timerHours').value) || 0;
+            const timerMinutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+            const timerSeconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+            const timerSound = document.getElementById('timerSound').value;
+            const timerAudio = document.getElementById('alarmAudio');
+
+            timerAudio.src = `Images/Son/${timerSound}`;
+            timerAudio.load();
+
+            const totalMilliseconds = ((timerHours * 3600) + (timerMinutes * 60) + timerSeconds) * 1000;
+
+            if (totalMilliseconds > 0) {
+                clearInterval(timerInterval);
+                timerTimeout = setTimeout(() => {
+                    timerAudio.play();
+                }, totalMilliseconds);
+
+                document.getElementById('timerMessage').innerText = `Minuteur réglé pour ${timerHours}h ${timerMinutes}m ${timerSeconds}s.`;
+                const timerEndDate = new Date(Date.now() + totalMilliseconds);
+                timerInterval = setInterval(() => updateTimerCountdown(timerEndDate), 1000);
+            } else {
+                alert('Veuillez définir un temps valide pour le minuteur.');
+            }
+        }
+
+        function updateTimerCountdown(timerEndDate) {
+            const now = new Date();
+            const timeToTimerEnd = timerEndDate.getTime() - now.getTime();
+
+            if (timeToTimerEnd > 0) {
+                document.getElementById('timerCountdown').innerText = `Temps restant : ${formatTime(timeToTimerEnd)}`;
+            } else {
+                clearInterval(timerInterval);
+                document.getElementById('timerCountdown').innerText = '';
+            }
+        }
+
+        // Chronomètre
+        let stopwatchInterval, elapsedTime = 0, stopwatchRunning = false;
+
+        function startStopwatch() {
+            if (!stopwatchRunning) {
+                stopwatchRunning = true;
+                const startTime = Date.now() - elapsedTime;
+                
+                stopwatchInterval = setInterval(() => {
+                    elapsedTime = Date.now() - startTime;
+                    document.getElementById('stopwatchDisplay').innerText = formatTimeWithMillis(elapsedTime);
+                }, 10); 
+            }
+        }
+
+        function pauseStopwatch() {
+            stopwatchRunning = false;
+            clearInterval(stopwatchInterval);
+        }
+
+        function resetStopwatch() {
+            stopwatchRunning = false;
+            clearInterval(stopwatchInterval);
+            elapsedTime = 0;
+            document.getElementById('stopwatchDisplay').innerText = "00:00:00.000";
+        }
+
+        function formatTime(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            let hours = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds % 3600) / 60);
+            let seconds = totalSeconds % 60;
+
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function formatTimeWithMillis(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            let hours = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds % 3600) / 60);
+            let seconds = totalSeconds % 60;
+            let milliseconds = ms % 1000;
+
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+        }
+    </script>
+<style>
+
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChiFuMi ! ✊🏼🍃✂️</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        .container {
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(247, 205, 20, 0.868);
+            margin-bottom: 100px;
+        }
+        #result {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        .choices img {
+            width: 100px;
+            height: auto;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        .battle {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+            position: relative;
+            width: 100%;
+            max-width: 250px; 
+            margin: 0 auto; 
+        }
+        .battle img {
+            width: 100px;
+            position: relative;
+            transition: transform 2.5s ease, opacity 0.5s ease;
+        }
+        #stats {
+            margin-top: 20px;
+        }
+        #stats div {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pierre - Feuille - Ciseaux</h1>
+
+        <div>Faites votre choix !</div>
+
+        <div class="choices">
+            <img src="Images/Pierre.png" alt="Pierre" onclick="playGame('Pierre')">
+            <img src="Images/feuille.png" alt="Feuille" onclick="playGame('Feuille')">
+            <img src="Images/ciseaux.png" alt="Ciseaux" onclick="playGame('Ciseaux')">
+        </div>
+
+        <div id="result">ㅤ</div>
+
+        <div class="battle">
+            <div id="playerChoice" style="opacity: 0;"></div>
+            <div id="computerChoice" style="opacity: 0;"></div>
+        </div>
+
+        <div id="stats">
+            <div>Victoires : <span id="wins">0</span></div>
+            <div>Défaites : <span id="losses">0</span></div>
+            <div>Égalités : <span id="ties">0</span></div>
+        </div>
+
+        <button onclick="resetStats()">Réinitialiser les statistiques</button>
+    </div>
+
+    <script>
+        let wins = 0;
+        let losses = 0;
+        let ties = 0;
+
+        function displayChoices(playerChoice, computerChoice) {
+            const playerDiv = document.getElementById("playerChoice");
+            const computerDiv = document.getElementById("computerChoice");
+
+            playerDiv.innerHTML = `<img src="Images/${playerChoice}.png" alt="${playerChoice}">`;
+            computerDiv.innerHTML = `<img src="Images/${computerChoice}.png" alt="${computerChoice}">`;
+
+            playerDiv.style.opacity = 1;
+            computerDiv.style.opacity = 1;
+        }
+
+        function animateChoices(playerChoice, computerChoice) {
+            const playerImg = document.querySelector('#playerChoice img');
+            const computerImg = document.querySelector('#computerChoice img');
+
+            playerImg.style.transform = "translateX(0)";
+            computerImg.style.transform = "translateX(0)";
+
+            if (playerChoice === computerChoice) {
+                playerImg.style.transform = "translateX(0)";
+                computerImg.style.transform = "translateX(0)";
+            } else if (
+                (playerChoice === 'Pierre' && computerChoice === 'Ciseaux') ||
+                (playerChoice === 'Feuille' && computerChoice === 'Pierre') ||
+                (playerChoice === 'Ciseaux' && computerChoice === 'Feuille')
+            ) {
+                playerImg.style.transform = "translateX(0px)"; 
+                computerImg.style.transform = "translateX(0px)"; 
+
+                setTimeout(() => {
+                    computerImg.style.opacity = 0;
+                }, 500);
+            } else {
+                computerImg.style.transform = "translateX(px)";
+                playerImg.style.transform = "translateX(0px)";
+
+                setTimeout(() => {
+                    playerImg.style.opacity = 0;
+                }, 500);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById("wins").textContent = wins;
+            document.getElementById("losses").textContent = losses;
+            document.getElementById("ties").textContent = ties;
+        }
+
+        function resetStats() {
+            wins = 0;
+            losses = 0;
+            ties = 0;
+            document.getElementById("result").textContent = "Faites votre choix !";
+            document.getElementById("playerChoice").innerHTML = "";
+            document.getElementById("computerChoice").innerHTML = "";
+            updateStats();
+        }
+
+        function playGame(playerChoice) {
+            const choices = ['Pierre', 'Feuille', 'Ciseaux'];
+            const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            let result = "";
+
+            displayChoices(playerChoice, computerChoice);
+
+            if (playerChoice === computerChoice) {
+                result = "Égalité !";
+                ties++;
+            } else if (
+                (playerChoice === 'Pierre' && computerChoice === 'Ciseaux') ||
+                (playerChoice === 'Feuille' && computerChoice === 'Pierre') ||
+                (playerChoice === 'Ciseaux' && computerChoice === 'Feuille')
+            ) {
+                result = "Victoire !";
+                wins++;
+            } else {
+                result = "Défaite !";
+                losses++;
+            }
+
+            document.getElementById("result").textContent = `ㅤㅤㅤㅤㅤㅤVous : ${playerChoice} ㅤㅤㅤOrdi : ${computerChoice} ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ${result}`;
+            updateStats();
+            animateChoices(playerChoice, computerChoice);
+        }
+    </script>
+    <body>
+        <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+    
+        <script>
+            const audio = document.getElementById('background-music');
+    
+            function playMusic() {
+                audio.play().catch(error => {
+                    console.error('Erreur lors de la lecture de la musique:', error);
+                });
+                document.body.removeEventListener('click', playMusic);
+            }
+    
+            document.body.addEventListener('click', playMusic);
+        </script>
+    </body>
+    <style>
+    
+        footer {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 5px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 999; /* S'assurer qu'il est en bas */
+        }
+    
+        .footer-left, .footer-right {
+            display: flex;
+            align-items: center;
+        }
+    
+        .footer-left a, .footer-right .dropdown-button {
+            text-decoration: none;
+            color: white;
+            background-color: #6f94ea;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+    
+        .footer-left a:hover, .footer-right .dropdown-button:hover {
+            background-color: #de2828;
+        }
+    
+        .footer-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+    
+        .profile-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    
+        .profile-pics {
+            margin-left: 320px;
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            margin-right: 5px;
+        }
+        
+        .pseudos {
+            margin-right: 420px;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            top: -14px
+        }
+    
+        /* Styles pour le menu déroulant */
+        .dropdown {
+            position: relative;
+            border-radius: 10px;
+        }
+    
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #6f94ea;
+            min-width: 100px;
+            border-radius: 10px;
+            z-index: 1000;  /* Assure que le menu est en haut du contenu */
+            bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+            left: -60px;
+        }
+    
+        .dropdown-content a {
+            padding: 10px;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+    
+        .dropdown-content a:hover {
+            background-color: #de2828;
+            border-radius: 10px;
+        }
+    
+        .dropdown:hover .dropdown-content {
+            display: block;
+            border-radius: 10px;
+        }
+    </style>
+    
+    <body>
+        <div class="main-content">
+            <!-- Your content here -->
+        </div>
+    
+        <footer>
+            <!-- Left Section (Accueil / Calendrier) -->
+            <div class="footer-left">
+                <a href="index.html">Accueil</a>
+                <a href="LeSite.html">Le Calendrier..</a>
+            </div>
+    
+            <!-- Center Section (Profile) -->
+            <div class="footer-center">
+                <div class="profile-container">
+                    <a href="https://www.twitch.tv/le_bisounours_">
+                        <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                        <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                    </a>
+                </div>
+            </div>
+    
+            <!-- Right Section (Autre / Jeux) -->
+            <div class="footer-right">
+                <div class="dropdown">
+                    <button class="dropdown-button">Autre</button>
+                    <div class="dropdown-content">
+                        <a href="chaine.html">Les Chaines</a>
+                        <a href="Noel.html">Décompte</a>
+                        <a href="musique.html">Musique</a>
+                        <a href="clock.html">Alarme/Chrono</a>
+                        <a href="pf.html">Pile ou Face</a>
+                        <a href="roulette.html">La Roulette</a>
+                        <a href="cps.html">Test CPS</a>
+                        <a href="Bientot.html">A venir..</a>
+                    </div>
+                </div>
+    
+                <div class="dropdown">
+                    <button class="dropdown-button">Jeux</button>
+                    <div class="dropdown-content">
+                        <a href="minecraft.html">Serveur MC</a>
+                        <a href="tcg.html">TCG Card</a>
+                        <a href="Morpion.html">Morpion</a>
+                        <a href="Puissance4.html">Puissance4</a>
+                        <a href="memories.html">Memory</a>
+                        <a href="pokemon.html">PokemonGo</a>
+                        <a href="clicker.html">PokeCliker</a>
+                        <a href="pendu.html">JeuDuPendu</a>
+                        <a href="geometriedash.html">GeometryDash</a>
+                        <a href="chifumi.html">ChiFuMi</a>
+                        <a href="vis.html">Vis</a>
+                        <a href="Bientot.html">A venir..</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+    
+    
+        </html>

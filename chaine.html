@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Chaînes</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style> 
+        h2 {
+            margin-bottom: 0px;
+            text-align: center; /* Centre le titre */
+        }          
+        .container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap; /* Permet de passer à la ligne si nécessaire */
+            margin-bottom: 20px; 
+        }
+
+        .box {
+            margin: 20px;
+            background-color: #6f94ea;
+            border: 1px solid #ebd009;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            width: 200px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  
+        }
+
+        .box img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .subscribe-button {
+            background-color: #432088;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .subscribe-button:hover {
+            background-color: #e52d2d;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .youtube-container, .tiktok-container {
+            display: flex;
+            flex-wrap: wrap; /* Permet de passer à la ligne si nécessaire */
+            justify-content: center; /* Centre les vidéos */
+        }
+
+        iframe {
+            width: 300px; /* Largeur des vidéos */
+            height: 169px; /* Hauteur des vidéos */
+            margin: 10px; /* Espacement entre les vidéos */
+            border: none; /* Supprime la bordure par défaut de l'iframe */
+        }
+
+        .tiktok-embed {
+            width: 338px; /* Largeur des TikToks */
+            height: 490px; /* Hauteur des TikToks */
+            margin: 10px; /* Espacement entre les TikToks */
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mes Chaînes :</h1>
+
+    <div class="container">
+        <div class="box">
+            <img src="Images/Youtube.png" alt="YouTube">
+            <button class="subscribe-button" onclick="window.location.href='https://www.youtube.com/@le_bisounours_'">S'abonner</button>
+        </div>
+        <div class="box">
+            <img src="Images/Twitch.png" alt="Twitch">
+            <button class="subscribe-button" onclick="window.location.href='https://www.twitch.tv/le_bisounours_'">S'abonner</button>
+        </div>
+        <div class="box">
+            <img src="Images/TikTok.png" alt="TikTok">
+            <button class="subscribe-button" onclick="window.location.href='https://www.tiktok.com/@le_bisounours_'">S'abonner</button>
+        </div>
+        <div class="box">
+            <img src="Images/Instagram.png" alt="Instagram">
+            <button class="subscribe-button" onclick="window.location.href='https://www.instagram.com/lebisounours_/'">S'abonner</button>
+        </div>
+        <div class="box">
+            <img src="Images/Discord.png" alt="Discord">
+            <button class="subscribe-button" onclick="window.location.href='https://discord.gg/5Gpex55E8d'">Rejoindre</button>
+        </div>
+    </div>
+
+    <div class="section" id="youtube-videos">
+        <h2>Dernières Vidéos YouTube</h2>
+        <div class="youtube-container" id="youtube"></div>
+    </div>
+
+    <div class="section" id="tiktok-videos">
+        <h2>Derniers TikToks</h2>
+        <div class="tiktok-container" id="tiktok"></div>
+    </div>
+
+    <script>
+        const youtubeApiKey = 'AIzaSyAUTayyPnFTkgHEXwc64wUpSsJmLq7gzTk';
+
+        // Fonction pour récupérer les dernières vidéos YouTube
+        async function fetchYoutubeVideos() {
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${youtubeApiKey}&channelId=UCrelGcQYRhaJYsf9RdOyBQQ&part=snippet,id&order=date&maxResults=8`);
+            const data = await response.json();
+            const youtubeDiv = document.getElementById('youtube');
+            data.items.forEach(video => {
+                if (video.id.kind === "youtube#video") {
+                    const videoElement = document.createElement('div');
+                    videoElement.innerHTML = `
+                        <iframe src="https://www.youtube.com/embed/${video.id.videoId}" frameborder="0" allowfullscreen></iframe>
+                    `;
+                    youtubeDiv.appendChild(videoElement);
+                }
+            });
+        }
+
+        // Fonction pour afficher les derniers TikToks
+        function fetchTikTokVideos() {
+            const tiktokDiv = document.getElementById('tiktok');
+            const tiktokUrls = [
+                'https://www.tiktok.com/@le_bisounours_/video/7351493609448934688',
+                'https://www.tiktok.com/@le_bisounours_/video/7344739416247749920',
+                'https://www.tiktok.com/@le_bisounours_/video/7431203546432802080',
+                'https://www.tiktok.com/@le_bisounours_/video/7430402718620978464'
+            ];
+            tiktokUrls.forEach(url => {
+                const videoId = url.split('/').pop(); // Récupérer l'ID de la vidéo
+                const tiktokElement = document.createElement('div');
+                tiktokElement.innerHTML = `<iframe class="tiktok-embed" src="https://www.tiktok.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+                tiktokDiv.appendChild(tiktokElement);
+            });
+        }
+
+        // Appel des fonctions pour récupérer les données
+        fetchYoutubeVideos();
+        fetchTikTokVideos();
+    </script>
+<style>
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musique 🎵</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        .containers {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px; 
+            margin-bottom: 20px;
+        }
+
+        .container, .container2 {
+            background-color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(247, 205, 20, 0.868);
+        }
+
+        .container img, .container2 img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .play-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #76c7c0;
+            border: none;
+            color: #222;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .volume-control {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .visualizer {
+            width: 100%;
+            height: 50px;
+            background-color: #444;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            margin-top: 10px;
+        }
+
+        .bar {
+            width: 10px;
+            height: 0;
+            background-color: #76c7c0;
+            transition: height 0.1s;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="containers">
+        <div class="container">
+            <img src="Images/C'estnouslesBloods.png" alt="Cover 1">
+            <h2>C'est Nous Les Bloods</h2>
+            <audio id="music1" src="Images/Son/son1.mp3" loop></audio>
+            <button class="play-button" id="play1">Play</button>
+
+            <div class="visualizer" id="visualizer1">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+
+            <input type="range" class="volume-control" id="volume1" min="0" max="1" step="0.1" value="1">
+        </div>
+
+        <div class="container">
+            <img src="Images/Lofi.png" alt="Cover 2">
+            <h2>Anime Lofi</h2>
+            <audio id="music2" src="Images/Son/son2.mp3" loop></audio>
+            <button class="play-button" id="play2">Play</button>
+
+            <div class="visualizer" id="visualizer2">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+
+            <input type="range" class="volume-control" id="volume2" min="0" max="1" step="0.1" value="1">
+        </div>
+
+        <div class="container">
+            <img src="Images/SadofBisounoursCover.png" alt="Cover 3">
+            <h2>Sad Of Bisounours</h2>
+            <audio id="music3" src="Images/Son/son4.mp3" loop></audio>
+            <button class="play-button" id="play3">Play</button>
+
+            <div class="visualizer" id="visualizer3">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+
+            <input type="range" class="volume-control" id="volume3" min="0" max="1" step="0.1" value="1">
+        </div>
+
+        <div class="container">
+            <img src="Images/Starscousin.png" alt="Cover 4">
+            <h2>The Stars Cousins</h2>
+            <audio id="music4" src="Images/Son/TheStarsCousins.mp3" loop></audio>
+            <button class="play-button" id="play4">Play</button>
+
+            <div class="visualizer" id="visualizer4">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+
+            <input type="range" class="volume-control" id="volume4" min="0" max="1" step="0.1" value="1">
+        </div>
+
+        <div class="container">
+            <img src="Images/Lounge.png" alt="Cover 5">
+            <h2>Coffee Lounge</h2>
+            <audio id="music5" src="Images/sonfond.mp3" loop></audio>
+            <button class="play-button" id="play5">Play</button>
+
+            <div class="visualizer" id="visualizer5">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+
+            <input type="range" class="volume-control" id="volume5" min="0" max="1" step="0.1" value="1">
+        </div>
+
+        <div class="container">
+            <img src="Images/DevilBisounours.png" alt="Cover 6">
+            <h2>Devil Bisounours</h2>
+            <audio id="music6" src="Images/Son/DevilBisounours.mp3" loop></audio>
+            <button class="play-button" id="play6">Play</button>
+
+            <div class="visualizer" id="visualizer6">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+
+            <input type="range" class="volume-control" id="volume6" min="0" max="1" step="0.1" value="1">
+        </div>
+    </div>
+
+    <script>
+        function toggleMusic(audioElement, button) {
+            if (audioElement.paused) {
+                audioElement.play();
+                button.textContent = "Pause";
+            } else {
+                audioElement.pause();
+                button.textContent = "Play";
+            }
+        }
+
+        function startVisualizer(audioElement, visualizer) {
+            setInterval(() => {
+                const bars = visualizer.querySelectorAll('.bar');
+                if (!audioElement.paused) {
+                    bars.forEach(bar => {
+                        const height = Math.random() * 100; 
+                        bar.style.height = height + '%'; 
+                    });
+                }
+            }, 100);
+        }
+
+        ['1', '2', '3', '4', '5', '6'].forEach(num => {
+            const playButton = document.getElementById(`play${num}`);
+            const music = document.getElementById(`music${num}`);
+            const visualizer = document.getElementById(`visualizer${num}`);
+            const volumeControl = document.getElementById(`volume${num}`);
+
+            playButton.addEventListener('click', () => toggleMusic(music, playButton));
+            startVisualizer(music, visualizer);
+            volumeControl.addEventListener('input', () => music.volume = volumeControl.value);
+        });
+    </script>
+<style>
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <div style="text-align: center; margin-bottom: 100px;">
+        <button onclick="window.location.href='Spotizer.html'" style="padding: 10px 20px; background-color: #6f94ea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+            Spotizer 🎵
+        </button>
+    </div>
+</body>
+
+
+    </html>

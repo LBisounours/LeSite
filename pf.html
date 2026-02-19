@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pile ou Face ! 🪙</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        .container {
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            background-color: #3b3939a1;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(247, 205, 20, 0.868);
+            margin-bottom: 100px;
+        }
+        #result {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+        .choices img {
+            width: 100px;
+            height: auto;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .choices img:hover {
+            transform: scale(1.1); 
+        }
+        #coin {
+            position: relative;
+            width: 150px; 
+            height: auto;
+            margin: 20px 0;
+            display: none; 
+            align-items: center;
+            right: -180px;
+        }
+        @keyframes flip {
+            0% { transform: rotateY(0); }
+            50% { transform: rotateY(1800deg); }
+            100% { transform: rotateY(3600deg); }
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pile ou Face</h1>
+
+        <div>Faites votre choix !</div>
+
+        <div class="choices">
+            <img src="Images/pilepiece.png" alt="Pile" onclick="startGame('pile')">
+            <img src="Images/facepiece.png" alt="Face" onclick="startGame('face')">
+        </div>
+
+        <div id="result">ㅤ</div>
+
+        <img id="coin" src="Images/pilepiece.png" alt="Pièce en jeu">
+
+        <button onclick="resetGame()">Réinitialiser le jeu</button>
+    </div>
+
+    <script>
+        function startGame(playerChoice) {
+            const coin = document.getElementById("coin");
+            coin.style.display = "block";
+            coin.style.animation = "flip 2s linear"; 
+            
+            let flipCount = 10; 
+            let flipInterval = setInterval(() => {
+                coin.src = (coin.src.includes("pilepiece.png")) ? "Images/facepiece.png" : "Images/pilepiece.png";
+                flipCount--;
+                if (flipCount <= 0) {
+                    clearInterval(flipInterval);
+                    const choices = ['pile', 'face'];
+                    const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+                    
+                    document.getElementById("result").textContent = `Vous avez choisi ${playerChoice}, la pièce est tombée sur ${computerChoice}.`;
+
+                    coin.src = computerChoice === "pile" ? "Images/pilepiece.png" : "Images/facepiece.png"; 
+                }
+            }, 200);
+
+            setTimeout(() => {
+                coin.style.animation = "none";
+            }, 2000); 
+        }
+
+        function resetGame() {
+            document.getElementById("result").textContent = "Faites votre choix !";
+            document.getElementById("coin").style.display = "none"; 
+        }
+    </script>
+
+    <body>
+        <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+    
+        <script>
+            const audio = document.getElementById('background-music');
+    
+            function playMusic() {
+                audio.play().catch(error => {
+                    console.error('Erreur lors de la lecture de la musique:', error);
+                });
+                document.body.removeEventListener('click', playMusic);
+            }
+    
+            document.body.addEventListener('click', playMusic);
+        </script>
+    </body>
+    <style>
+    
+        footer {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 5px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 999; /* S'assurer qu'il est en bas */
+        }
+    
+        .footer-left, .footer-right {
+            display: flex;
+            align-items: center;
+        }
+    
+        .footer-left a, .footer-right .dropdown-button {
+            text-decoration: none;
+            color: white;
+            background-color: #6f94ea;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+    
+        .footer-left a:hover, .footer-right .dropdown-button:hover {
+            background-color: #de2828;
+        }
+    
+        .footer-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+    
+        .profile-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    
+        .profile-pics {
+            margin-left: 320px;
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            margin-right: 5px;
+        }
+        
+        .pseudos {
+            margin-right: 420px;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            top: -14px
+        }
+    
+        /* Styles pour le menu déroulant */
+        .dropdown {
+            position: relative;
+            border-radius: 10px;
+        }
+    
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #6f94ea;
+            min-width: 100px;
+            border-radius: 10px;
+            z-index: 1000;  /* Assure que le menu est en haut du contenu */
+            bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+            left: -60px;
+        }
+    
+        .dropdown-content a {
+            padding: 10px;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+    
+        .dropdown-content a:hover {
+            background-color: #de2828;
+            border-radius: 10px;
+        }
+    
+        .dropdown:hover .dropdown-content {
+            display: block;
+            border-radius: 10px;
+        }
+    </style>
+    
+    <body>
+        <div class="main-content">
+            <!-- Your content here -->
+        </div>
+    
+        <footer>
+            <!-- Left Section (Accueil / Calendrier) -->
+            <div class="footer-left">
+                <a href="index.html">Accueil</a>
+                <a href="LeSite.html">Le Calendrier..</a>
+            </div>
+    
+            <!-- Center Section (Profile) -->
+            <div class="footer-center">
+                <div class="profile-container">
+                    <a href="https://www.twitch.tv/le_bisounours_">
+                        <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                        <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                    </a>
+                </div>
+            </div>
+    
+            <!-- Right Section (Autre / Jeux) -->
+            <div class="footer-right">
+                <div class="dropdown">
+                    <button class="dropdown-button">Autre</button>
+                    <div class="dropdown-content">
+                        <a href="chaine.html">Les Chaines</a>
+                        <a href="Noel.html">Décompte</a>
+                        <a href="musique.html">Musique</a>
+                        <a href="clock.html">Alarme/Chrono</a>
+                        <a href="pf.html">Pile ou Face</a>
+                        <a href="roulette.html">La Roulette</a>
+                        <a href="cps.html">Test CPS</a>
+                        <a href="Bientot.html">A venir..</a>
+                    </div>
+                </div>
+    
+                <div class="dropdown">
+                    <button class="dropdown-button">Jeux</button>
+                    <div class="dropdown-content">
+                        <a href="minecraft.html">Serveur MC</a>
+                        <a href="tcg.html">TCG Card</a>
+                        <a href="Morpion.html">Morpion</a>
+                        <a href="Puissance4.html">Puissance4</a>
+                        <a href="memories.html">Memory</a>
+                        <a href="pokemon.html">PokemonGo</a>
+                        <a href="clicker.html">PokeCliker</a>
+                        <a href="pendu.html">JeuDuPendu</a>
+                        <a href="geometriedash.html">GeometryDash</a>
+                        <a href="chifumi.html">ChiFuMi</a>
+                        <a href="vis.html">Vis</a>
+                        <a href="Bientot.html">A venir..</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+    
+    
+        </html>

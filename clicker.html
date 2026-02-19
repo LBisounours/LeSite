@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PokeClicker 👌🏼</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        body {
+            background-image: url('Images/background.png');
+            background-color: #2c3e50;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-bottom: 70px;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: url('Images/background.png');
+            pointer-events: none;
+            z-index: -1;
+        } 
+        .clicker-section {
+            margin-bottom: 30px;
+        }
+        .shop-section {
+            width: 100%;
+            margin: auto;
+        }
+        #pokemon-shop {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .pokemon-item {
+            width: 48%;
+            background-color: rgba(0, 0, 0, 0.8);
+            margin: 10px 0;
+            padding: 10px;
+            text-align: center;
+            border-radius: 10px;
+        }
+        .pokemon-img {
+            width: 100px;
+            height: 100px;
+        }
+        .score-info h2, .score-info h3 {
+            color: white;
+        }
+        img.pokeball {
+            cursor: pointer;
+            width: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+
+    <script>
+        const audio = document.getElementById('background-music');
+
+        // Fonction pour jouer la musique
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic);
+        }
+
+        document.body.addEventListener('click', playMusic);
+    </script>
+    <div class="clicker-section">
+        <img id="pokeball-image" src="Images/Pokemon/pokeball.png" alt="Pokeball" class="pokeball" onclick="clickPokeball()">
+        <div class="score-info">
+            <h2>Points: <span id="points">0</span></h2>
+            <h3>Clics par seconde (CPS): <span id="cps">0</span></h3>
+        </div>
+    </div>
+    <div class="shop-section">
+        <h2>Magasin de Pokémon</h2>
+        <div id="pokemon-shop"></div>
+    </div>
+    
+
+    <script>
+        let points = 0;
+        let cps = 0;
+        let pokeballLevel = 1; 
+        let clickValue = 1; 
+        let pokemonsOwned = {};
+        let cpsInterval;
+
+        const pokemonShop = {
+            1: [
+                { name: 'Magicarpe', baseCost: 11, cps: 1, image: 'Images/Pokemon/magicarpe.png' },
+                { name: 'Salamèche', baseCost: 50, cps: 5, image: 'Images/Pokemon/salameche.png' },
+                { name: 'Bulbizarre', baseCost: 100, cps: 10, image: 'Images/Pokemon/bulbizard.png' },
+                { name: 'Carapuce', baseCost: 500, cps: 50, image: 'Images/Pokemon/carapuce.png' }
+            ],
+            2: [
+                { name: 'Pikachu', baseCost: 1000, cps: 250, image: 'Images/Pokemon/pikachu.png' },
+                { name: 'Tiplouf', baseCost: 1500, cps: 500, image: 'Images/Pokemon/tiplouf.png' },
+                { name: 'Rondoudou', baseCost: 2000, cps: 1300, image: 'Images/Pokemon/rondoudou.png' },
+                { name: 'Évolie', baseCost: 2500, cps: 1800, image: 'Images/Pokemon/evolie.png' }
+            ],
+            3: [
+                { name: 'Goupix', baseCost: 10000, cps: 3500, image: 'Images/Pokemon/goupix.png' },
+                { name: 'Minidraco', baseCost: 12000, cps: 4200, image: 'Images/Pokemon/minidraco.png' },
+                { name: 'Sabelette', baseCost: 15000, cps: 5500, image: 'Images/Pokemon/sabelette.png' },
+                { name: 'Lixy', baseCost: 20000, cps: 7000, image: 'Images/Pokemon/lixy.png' }
+            ],
+            4: [
+                { name: 'Togepi', baseCost: 50000, cps: 5000, image: 'Images/Pokemon/togepi.png' },
+                { name: 'Lucario', baseCost: 70000, cps: 7800, image: 'Images/Pokemon/lucario.png' },
+                { name: 'Gardevoir', baseCost: 90000, cps: 9000, image: 'Images/Pokemon/gardevoir.png' },
+                { name: 'Mimiqui', baseCost: 120000, cps: 12000, image: 'Images/Pokemon/mimiqui.png' }
+            ],
+            5: [
+                { name: 'Exctoplasma', baseCost: 150000, cps: 15000, image: 'Images/Pokemon/Ectoplasma.png' },
+                { name: 'Pharamp', baseCost: 200000, cps: 20000, image: 'Images/Pokemon/Pharamp.png' },
+                { name: 'Oh-oh', baseCost: 250000, cps: 25000, image: 'Images/Pokemon/ohoh.png' },
+                { name: 'Jirachi', baseCost: 300000, cps: 30000, image: 'Images/Pokemon/jirachi.png' }
+            ],
+            6: [
+                { name: 'Mewtwo', baseCost: 500000, cps: 50000, image: 'Images/Pokemon/mew.png' },
+                { name: 'Darkrai', baseCost: 600000, cps: 60000, image: 'Images/Pokemon/darkrai.png' },
+                { name: 'Zygarde', baseCost: 700000, cps: 70000, image: 'Images/Pokemon/zygarde.png' },
+                { name: 'Solgaleo', baseCost: 800000, cps: 80000, image: 'Images/Pokemon/solgaleo.png' }
+            ],
+            7: [
+                { name: 'Dracolosse', baseCost: 1000000, cps: 100000, image: 'Images/Pokemon/Dracolosse.png' },
+                { name: 'Groudon', baseCost: 1200000, cps: 120000, image: 'Images/Pokemon/groudon.png' },
+                { name: 'Dialga', baseCost: 1500000, cps: 1500000, image: 'Images/Pokemon/dialga.png' },
+                { name: 'Rechiram', baseCost: 1800000, cps: 1800000, image: 'Images/Pokemon/rechiram.png' }
+            ],
+            8: [
+                { name: 'Arceus', baseCost: 2500000, cps: 250000, image: 'Images/Pokemon/arceus.png' },
+                { name: 'Hoopa', baseCost: 3000000, cps: 300000, image: 'Images/Pokemon/hoopa.png' },
+                { name: 'Rayquaza', baseCost: 3500000, cps: 350000, image: 'Images/Pokemon/rayquaza.png' },
+                { name: 'Zéroïd', baseCost: 4000000, cps: 400000, image: 'Images/Pokemon/zeroid.png' }
+            ],
+        };
+
+        const pokeballs = [
+            { threshold: 10000, image: 'Images/Pokemon/safariball.png' },
+            { threshold: 100000, image: 'Images/Pokemon/superball.png' },
+            { threshold: 1000000, image: 'Images/Pokemon/moonball.png' },
+            { threshold: 10000000, image: 'Images/Pokemon/hyperball.png' },
+            { threshold: 100000000, image: 'Images/Pokemon/beastball.png' },
+            { threshold: 1000000000, image: 'Images/Pokemon/masterball.png' },
+            { threshold: 10000000000, image: 'Images/Pokemon/Bisouball.png' },
+        ];
+
+        function initGame() {
+            updatePoints();
+            updateCPS();
+            updatePokemonShop();
+            startCPS();
+        }
+
+        function updatePoints() {
+            document.getElementById('points').innerText = points;
+        }
+
+        function updateCPS() {
+            let totalCps = 0;
+            for (let pokemon in pokemonsOwned) {
+                totalCps += pokemonsOwned[pokemon].count * pokemonsOwned[pokemon].cps;
+            }
+            document.getElementById('cps').innerText = totalCps;
+        }
+
+        function clickPokeball() {
+            points += clickValue; 
+            updatePoints();
+
+            for (let i = 0; i < pokeballs.length; i++) {
+                if (points >= pokeballs[i].threshold && pokeballLevel <= i + 1) {
+                    pokeballLevel = i + 2;
+                    clickValue *= 2;
+                    document.getElementById('pokeball-image').src = pokeballs[i].image; 
+                    updatePokemonShop();
+                    break;
+                }
+            }
+        }
+
+        function startCPS() {
+            cpsInterval = setInterval(() => {
+                points += cps;
+                updatePoints();
+            }, 1000);
+        }
+
+        function updatePokemonShop() {
+            const shopDiv = document.getElementById('pokemon-shop');
+            shopDiv.innerHTML = ''; 
+
+            for (let level = 1; level <= pokeballLevel; level++) {
+                pokemonShop[level].forEach(pokemon => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.classList.add('pokemon-item');
+
+                    const count = pokemonsOwned[pokemon.name]?.count || 0;
+                    const currentCost = Math.floor(pokemon.baseCost * Math.pow(1.15, count));
+
+                    itemDiv.innerHTML = `
+                        <img src="${pokemon.image}" alt="${pokemon.name}" class="pokemon-img">
+                        <h3>${pokemon.name} (Possédés : ${count})</h3>
+                        <p>Coût: ${currentCost} points</p>
+                        <p>+${pokemon.cps} CPS par achat</p>
+                        <button onclick="buyPokemon('${pokemon.name}', ${pokemon.baseCost}, ${pokemon.cps})">Acheter</button>
+                    `;
+
+                    shopDiv.appendChild(itemDiv);
+                });
+            }
+        }
+
+        function buyPokemon(name, baseCost, cpsValue) {
+            const count = pokemonsOwned[name]?.count || 0;
+            const currentCost = Math.floor(baseCost * Math.pow(1.15, count));
+
+            if (points >= currentCost) {
+                points -= currentCost;
+                cps += cpsValue;
+
+                if (!pokemonsOwned[name]) {
+                    pokemonsOwned[name] = { count: 0, cps: cpsValue };
+                }
+                pokemonsOwned[name].count++;
+
+                updatePoints();
+                updateCPS();
+                updatePokemonShop();
+            } else {
+                alert("Vous n'avez pas assez de points !");
+            }
+        }
+
+        initGame();
+    </script>
+<style>
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

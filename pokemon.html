@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PokémonGo 👾</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/png" href="Images/TheStars.png">
+        <style>
+        #game {
+            border-radius: 50px;
+            width: 1000px;
+            height: 450px;
+            border: 2px solid #000;
+            position: relative;
+            overflow: hidden;
+            background-color: #3b3939a1;
+            margin: 0 auto;
+            margin-bottom: 100px;
+        }
+        .pokemon {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            background-size: cover;
+        }
+        .pokeball {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            background-image: url('Images/Memo1/pokeball.png');
+            background-size: cover;
+            pointer-events: none;
+        }
+        #score {
+            font-size: 20px;
+            margin: 20px;
+        }
+        #start-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Attrapez les Pokémon !</h1>
+<div id="score">Score: 0</div>
+<button id="start-button">Commencer le jeu</button>
+<div id="game"></div>
+
+<script>
+    const pokemonImages = [];
+    for (let i = 1; i <= 730; i++) {
+        pokemonImages.push(`Images/Memo1/mem${i}.png`);
+    }
+
+    let score = 0;
+    let canThrowPokeball = true; 
+    const gameArea = document.getElementById('game');
+    let activePokeball = null;
+    const pokemons = [];
+    const pokemonSpeed = 1;
+    const pokemonIntervals = new Map(); 
+
+    function getRandomPosition() {
+        const x = Math.random() * (gameArea.clientWidth - 100);
+        const y = Math.random() * (gameArea.clientHeight - 100);
+        return { x, y };
+    }
+
+    function createPokemon() {
+        const pokemon = document.createElement('div');
+        const { x, y } = getRandomPosition();
+        const randomImage = pokemonImages[Math.floor(Math.random() * pokemonImages.length)];
+
+        pokemon.classList.add('pokemon');
+        pokemon.style.backgroundImage = `url(${randomImage})`;
+        pokemon.style.left = `${x}px`;
+        pokemon.style.top = `${y}px`;
+
+        gameArea.appendChild(pokemon);
+        pokemons.push(pokemon);
+
+        movePokemon(pokemon);
+    }
+
+    function movePokemon(pokemon) {
+        if (pokemonIntervals.has(pokemon)) {
+            clearInterval(pokemonIntervals.get(pokemon));
+        }
+
+        const interval = setInterval(() => {
+            const { x, y } = getRandomPosition();
+            const dx = x - parseFloat(pokemon.style.left);
+            const dy = y - parseFloat(pokemon.style.top);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const steps = distance / pokemonSpeed;
+            const stepX = dx / steps;
+            const stepY = dy / steps;
+
+            let currentStep = 0;
+
+            const stepInterval = setInterval(() => {
+                if (currentStep >= steps) {
+                    clearInterval(stepInterval);
+                    pokemons.forEach(otherPokemon => {
+                        if (otherPokemon !== pokemon && checkCollision(pokemon, otherPokemon)) {
+                            clearInterval(interval); 
+                            movePokemon(pokemon); 
+                        }
+                    });
+                } else {
+                    pokemon.style.left = `${parseFloat(pokemon.style.left) + stepX}px`;
+                    pokemon.style.top = `${parseFloat(pokemon.style.top) + stepY}px`;
+                    currentStep++;
+                }
+            }, 5);
+        }, 2000);
+
+        pokemonIntervals.set(pokemon, interval);
+    }
+
+    function checkCollision(pokemon1, pokemon2) {
+        const rect1 = pokemon1.getBoundingClientRect();
+        const rect2 = pokemon2.getBoundingClientRect();
+
+        return !(rect1.right < rect2.left || 
+                 rect1.left > rect2.right || 
+                 rect1.bottom < rect2.top || 
+                 rect1.top > rect2.bottom);
+    }
+
+    function throwPokeball(clickX, clickY) {
+        if (!canThrowPokeball) return; 
+        canThrowPokeball = false;
+
+        setTimeout(() => {
+            canThrowPokeball = true;
+        }, 500); // Temps avant lancer
+
+        const pokeball = document.createElement('div');
+        pokeball.classList.add('pokeball');
+        const centerX = gameArea.clientWidth / 2 - 25;  
+        const centerY = gameArea.clientHeight / 2 - -200;
+
+        pokeball.style.left = `${centerX}px`;
+        pokeball.style.top = `${centerY}px`;
+
+        gameArea.appendChild(pokeball);
+        activePokeball = pokeball;
+
+        const pokeballSpeed = 8;
+
+        const dx = clickX - centerX;
+        const dy = clickY - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const steps = distance / pokeballSpeed;
+        const stepX = dx / steps;
+        const stepY = dy / steps;
+
+        let currentStep = 0;
+        const moveInterval = setInterval(() => {
+            if (currentStep >= steps) {
+                clearInterval(moveInterval);
+                gameArea.removeChild(pokeball);
+                activePokeball = null;
+            } else {
+                pokeball.style.left = `${parseFloat(pokeball.style.left) + stepX}px`;
+                pokeball.style.top = `${parseFloat(pokeball.style.top) + stepY}px`;
+
+                pokemons.forEach((pokemon, index) => {
+                    if (checkCollision(pokeball, pokemon)) {
+                        clearInterval(moveInterval);
+                        gameArea.removeChild(pokeball);
+                        gameArea.removeChild(pokemon);
+                        pokemons.splice(index, 1); 
+
+                        score++;
+                        document.getElementById('score').innerText = `Score: ${score}`;
+                        createPokemon(); 
+                        activePokeball = null;
+                    }
+                });
+            }
+            currentStep++;
+        }, 20);
+    }
+
+    gameArea.addEventListener('click', (event) => {
+        const rect = gameArea.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
+        throwPokeball(clickX, clickY);
+    });
+
+    document.getElementById('start-button').onclick = function() {
+        score = 0;
+        document.getElementById('score').innerText = `Score: ${score}`;
+        gameArea.innerHTML = '';
+        pokemons.length = 0; 
+        for (let i = 0; i < 3; i++) createPokemon(); 
+    };
+</script>
+<body>
+    <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+
+    <script>
+        const audio = document.getElementById('background-music');
+
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic);
+        }
+
+        document.body.addEventListener('click', playMusic);
+    </script>
+</body>
+<style>
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Roulette De Choix 🎡</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/png" href="Images/TheStars.png">
+        <style>
+
+        #container {
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            background-color: #6f94ea;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(247, 205, 20, 0.868);
+            margin-bottom: 100px;
+        }
+
+        #roulette-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 5px solid #000000;
+            overflow: hidden;
+            background-color: #333;
+            align-items: center;
+        }
+
+        #roulette {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 3s ease-out;
+            align-items: center;
+        }
+
+        
+        .arrow {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px; 
+            height: auto; 
+            z-index: 10;
+            display: block;
+
+        }
+
+        #message {
+            position: relative;
+            margin-top: 20px;
+            font-weight: bold;
+            align-items: center;
+            
+        }
+
+        input[type="text"],
+        select {
+            position: relative;
+            width: 200px;
+            margin-top: 10px;
+            padding: 5px; 
+            border-radius: 4px; 
+            border: 1px solid #ccc; 
+            align-items: center;
+            background-color: #333;
+            color: white;
+        }
+
+        button {
+            position: relative;
+            margin-top: 10px;
+            padding: 10px 15px; 
+            border-radius: 4px; 
+            border: none; 
+            background-color: #d71414; 
+            color: white; 
+            cursor: pointer; 
+            align-items: center;
+        }
+
+        button:hover {
+            position: relative;
+            background-color: #d71414;
+            align-items: center;
+        }
+
+        .choice-container {
+            position: relative;
+            margin-top: 20px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>Roulette de Choix</h1>
+
+        <div id="roulette-container">
+            <img class="arrow" src="Images/FlecheRoue.png" alt="Flèche">
+            <canvas id="roulette" width="300" height="300"></canvas>
+        </div>
+
+        <p id="message"></p>
+
+        <input type="text" id="choice-input" placeholder="Ajouter un choix">
+        <button onclick="addChoice()">Ajouter</button>
+
+        <div class="choice-container">
+            <select id="choice-dropdown"></select>
+            <button onclick="removeSelectedChoice()">Supprimer le choix sélectionné</button>
+        </div>
+
+        <button onclick="spinRoulette()">Lancer la Roulette</button>
+    </div>
+
+    <script>
+        const choices = [];
+        const roulette = document.getElementById('roulette');
+        const ctx = roulette.getContext('2d');
+        let angleOffset = 0;
+        let tickInterval;
+        let tickSoundDelay = 110; 
+
+        function drawRoulette() {
+            const sliceAngle = 2 * Math.PI / choices.length;
+            ctx.clearRect(0, 0, roulette.width, roulette.height);
+            choices.forEach((choice, index) => {
+                const angle = index * sliceAngle + angleOffset;
+                ctx.beginPath();
+                ctx.moveTo(roulette.width / 2, roulette.height / 2);
+                ctx.arc(roulette.width / 2, roulette.height / 2, roulette.width / 2, angle, angle + sliceAngle);
+                ctx.fillStyle = `hsl(${(index * 360 / choices.length)}, 70%, 50%)`;
+                ctx.fill();
+                ctx.save();
+                ctx.translate(roulette.width / 2, roulette.height / 2);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 14px Arial";
+                ctx.fillText(choice, roulette.width / 4, 5);
+                ctx.restore();
+            });
+        }
+
+        function addChoice() {
+            const choiceInput = document.getElementById('choice-input');
+            const choice = choiceInput.value.trim();
+            if (choice && !choices.includes(choice)) {
+                choices.push(choice);
+                updateChoiceDropdown();
+                drawRoulette();
+            }
+            choiceInput.value = '';
+        }
+
+        function removeSelectedChoice() {
+            const dropdown = document.getElementById('choice-dropdown');
+            const selectedIndex = dropdown.selectedIndex;
+            if (selectedIndex >= 0) {
+                choices.splice(selectedIndex, 1);
+                updateChoiceDropdown();
+                drawRoulette();
+            }
+        }
+
+        function updateChoiceDropdown() {
+            const dropdown = document.getElementById('choice-dropdown');
+            dropdown.innerHTML = '';
+            choices.forEach(choice => {
+                const option = document.createElement('option');
+                option.textContent = choice;
+                dropdown.appendChild(option);
+            });
+        }
+
+        function playTickSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'square'; 
+            oscillator.frequency.setValueAtTime(780, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1); 
+        }
+
+        function spinRoulette() {
+            if (choices.length === 0) {
+                alert("Ajoutez des choix avant de lancer la roulette!");
+                return;
+            }
+
+            const sliceAngle = 2 * Math.PI / choices.length;
+            const randomIndex = Math.floor(Math.random() * choices.length);
+            const targetAngle = randomIndex * sliceAngle + (sliceAngle / 2); 
+
+            const rotations = Math.floor(Math.random() * 5) + 5; 
+            angleOffset = rotations * 2 * Math.PI - targetAngle; 
+
+            roulette.style.transition = 'transform 3s ease-out';
+            roulette.style.transform = `rotate(${angleOffset}rad)`;
+
+            tickInterval = setInterval(() => {
+                playTickSound();
+                if (tickSoundDelay < 300) {
+                    tickSoundDelay += 10; 
+                    clearInterval(tickInterval);
+                    tickInterval = setInterval(playTickSound, tickSoundDelay);
+                }
+            }, tickSoundDelay);
+
+            setTimeout(() => {
+                clearInterval(tickInterval); 
+                const result = choices[randomIndex];
+                roulette.style.transition = 'none';
+                roulette.style.transform = `rotate(${angleOffset % (2 * Math.PI)}rad)`; 
+            }, 3000);
+        }
+    </script>
+
+<style>
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

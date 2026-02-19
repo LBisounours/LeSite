@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu du Pendu 🎵</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        h1 {
+            color: #faf4f4;
+        }
+        .word {
+            font-size: 54px;
+            letter-spacing: 10px;
+            text-align: center;
+        }
+        .incorrect-letters {
+            color: red;
+            text-align: center;
+        }
+        .attempts {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .input-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .input-section input[type="text"] {
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            width: 50px;
+            text-transform: uppercase;
+        }
+        .hangman-image {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .hangman-image img {
+            max-width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Jeu du Pendu</h1>
+    
+    <div id="game">
+        <div class="word" id="wordDisplay">_ _ _ _ _</div>
+        <div class="attempts">Tentatives restantes : <span id="attemptsLeft">9</span></div>
+        <div class="incorrect-letters">Lettres incorrectes : <span id="incorrectLetters"></span></div>
+        
+        <div class="input-section">
+            <label for="letterInput">Entrez une lettre :</label>
+            <input type="text" id="letterInput" maxlength="1">
+            <button onclick="guessLetter()">Valider</button>
+        </div>
+
+        <div class="hangman-image">
+            <img id="hangmanImage" src="Images/Pendu/pendu0.png" alt="Pendu">
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            "mario", "zelda", "minecraft", "fortnite",
+            "pokemon", "tetris", "bonjour", "ferme",
+            "abeille", "frite", "chat", "chien", "elephant", "lion", "tigre",
+            "girafe", "ours", "rhinoceros", "zebre", "loup",
+            "singe", "cheval", "kangourou", "serpent", "oiseau",
+            "poisson", "tortue", "souris", "rat", "hamster",
+            "panda", "faucon", "aigle", "crocodile", "renard",
+            "poule", "canard", "vache", "mouton", "cochon",
+            "abeille", "papillon", "mante", "scorpion", "libellule",
+            "araignée", "dauphin", "baleine", "requin", "pieuvre",
+            "loutre", "pangolin", "ecureuil", "bison", "antilope",
+            "naruto", "onepiece", "attackdestitan", "my hero academia", "deathnote",
+            "demonslayer", "fullmetalalchemist", "hunterxhunter", "bleach", "tokyoghoul",
+            "yourname", "swordartonline", "fairytail", "dragonball",
+            "codegeass", "assassinationclassroom", "kimetsunoyaiba", "detectiveconan", "parasyte",
+            "pomme", "banane", "orange", "fraise", "kiwi",
+            "raisin", "mangue", "ananas", "carotte", "brocoli",
+            "tomate", "courgette", "poivron", "concombre", "epince",
+            "celeri", "betterave", "chou", "oignon", "ail",
+            "pêche", "nectarine", "framboise", "melon", "pasteque",
+            "cassis", "mure", "figue", "grenade", "aubergine",
+            "champignon", "radis", "artichaut", "potiron", "navet",
+            "lecture", "jardinage", "cuisine", "photographie", "musique",
+            "peinture", "danse", "randonnee", "boulangerie", "ecriture",
+            "cinema", "théâtre", "voyage", "peche", "cyclisme",
+            "natation", "gaming", "sculpture", "dessin", "yoga",
+            "meditation", "bricolage", "couture", "skateboard", "surf",
+            "karaoke", "puzzle", "collection", "calligraphie", "sports",
+            "volontariat", "astronomie", "modelisme", "golf",
+            "voiture", "bus", "train", "avion", "bateau",
+            "moto", "velo", "tram", "helicoptère", "scooter",
+            "ferry", "carrosse", "monorail",
+            "camion", "remorque", "jet", "cabriolet",
+            "circuit", "skateboard", "roller",
+            "autocar", "patin", "hoverboard", "trottinette",
+            "stylo", "ordinateur", "chaise", "table", "téléphone",
+            "livre", "carnet", "montre", "lampe", "sac",
+            "cles", "bouteille", "fauteuil", "canape", "miroir",
+            "tasse", "assiette", "couteau", "fourchette", "cuillere",
+            "porte", "fenetre", "tablette", "ecran", "chargeur",
+            "cadenas", "vase", "jouet", "brosse", "chaussure",
+            "parapluie", "carnet", "telecommande", "souris", "casque",
+            "arbre", "mer", "montagne", "ciel", "nuage",
+            "lune", "soleil", "etoile", "vent", "pluie",
+            "neige", "fleur", "herbe", "rocher", "riviere",
+            "lac", "foret", "prairie", "vallee", "colline",
+            "ocean", "desert", "ile", "cascade", "falaises",
+            "champ", "plante", "fruit", "graine", "brouillard",
+            "crepuscule", "aube", "tempete", "sable", "terre"
+        ];
+
+        let selectedWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
+        let attemptsLeft = 9;
+        let guessedLetters = [];
+        let incorrectLetters = [];
+
+        function displayWord() {
+            let display = selectedWord.split('').map(letter => guessedLetters.includes(letter) ? letter : '_').join(' ');
+            document.getElementById('wordDisplay').innerText = display;
+        }
+
+        function guessLetter() {
+            const letterInput = document.getElementById("letterInput");
+            let letter = letterInput.value.toUpperCase();
+
+            if (letter && !guessedLetters.includes(letter) && !incorrectLetters.includes(letter)) {
+                if (selectedWord.includes(letter)) {
+                    guessedLetters.push(letter);
+                } else {
+                    incorrectLetters.push(letter);
+                    attemptsLeft--;
+                }
+                updateGame();
+            }
+
+            letterInput.value = '';
+        }
+
+        function updateGame() {
+            displayWord();
+            document.getElementById('attemptsLeft').innerText = attemptsLeft;
+            document.getElementById('incorrectLetters').innerText = incorrectLetters.join(', ');
+
+            document.getElementById('hangmanImage').src = `Images/Pendu/pendu${9 - attemptsLeft}.png`;
+
+            if (!document.getElementById('wordDisplay').innerText.includes('_')) {
+                alert("Félicitations, vous avez gagné !");
+                resetGame();
+            } else if (attemptsLeft <= 0) {
+                alert("Dommage, vous avez perdu ! Le mot était : " + selectedWord);
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            selectedWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
+            attemptsLeft = 9;
+            guessedLetters = [];
+            incorrectLetters = [];
+            displayWord();
+            document.getElementById('attemptsLeft').innerText = attemptsLeft;
+            document.getElementById('incorrectLetters').innerText = '';
+            document.getElementById('hangmanImage').src = 'Images/Pendu/pendu0.png';
+        }
+
+        displayWord();
+        document.getElementById('hangmanImage').src = 'Images/Pendu/pendu0.png';
+    </script>
+
+<style>
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

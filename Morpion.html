@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morpion ❌</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        .game-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .selected {
+            border: 2px dashed #ff0000;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+
+    <script>
+        const audio = document.getElementById('background-music');
+
+        
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic); 
+        }
+
+        document.body.addEventListener('click', playMusic);
+    </script>
+
+    <div class="game-container">
+        <div id="playerSetup">
+            <h1>Morpion</h1>
+            <label for="player1">Nom du Joueur 1 : </label>
+            <input type="text" id="player1" placeholder="Joueur 1"><br><br>
+            <label for="player2">Nom du Joueur 2 : </label>
+            <input type="text" id="player2" placeholder="Joueur 2"><br><br>
+            <button id="startGameButton">Commencer la partie</button>
+        </div>
+
+        <div id="gameArea" class="hidden">
+            <p id="status"></p>
+
+            <div class="grid">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+            <button id="resetButton">Réinitialiser le jeu</button>
+            <div class="scoreboard">
+                <h2>Tableau des Scores</h2>
+                <p id="scorePlayer2">Joueur 1 : <span id="score1">0</span></p>
+                <p id="scorePlayer2">Joueur 2 : <span id="score2">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const grid = document.querySelectorAll('.cell');
+        const statusDisplay = document.getElementById('status');
+        const resetButton = document.getElementById('resetButton');
+        const startGameButton = document.getElementById('startGameButton');
+        const playerSetup = document.getElementById('playerSetup');
+        const gameArea = document.getElementById('gameArea');
+
+        let player1Name = 'Joueur 1';
+        let player2Name = 'Joueur 2';
+
+        const player1 = {
+            image: 'Images/pion1.png',
+            positions: []
+        };
+
+        const player2 = {
+            image: 'Images/pion2.png',
+            positions: []
+        };
+
+        let currentPlayer;
+        let movePhase = false;
+        let selectedCell = null;
+
+        let score1 = 0;
+        let score2 = 0;
+
+        startGameButton.addEventListener('click', function() {
+            player1Name = document.getElementById('player1').value || 'Joueur 1';
+            player2Name = document.getElementById('player2').value || 'Joueur 2';
+
+            currentPlayer = Math.random() < 0.5 ? 1 : 2;
+
+            playerSetup.classList.add('hidden');
+            gameArea.classList.remove('hidden');
+
+            updateStatus();
+        });
+
+        function checkWin(playerPositions) {
+            const winPatterns = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            return winPatterns.some(pattern => pattern.every(index => playerPositions.includes(index)));
+        }
+
+        function updateScore(winner) {
+            if (winner === 1) {
+                score1++;
+                document.getElementById('score1').textContent = score1;
+            } else {
+                score2++;
+                document.getElementById('score2').textContent = score2;
+            }
+        }
+
+        function updateStatus() {
+            if (movePhase) {
+                statusDisplay.textContent = `${currentPlayer === 1 ? player1Name : player2Name} doit déplacer un pion.`;
+            } else {
+                statusDisplay.textContent = `${currentPlayer === 1 ? player1Name : player2Name} doit poser un pion.`;
+            }
+        }
+
+        grid.forEach(cell => {
+            cell.addEventListener('click', function () {
+                const cellIndex = parseInt(this.getAttribute('data-index'));
+
+                if (!movePhase) {
+                    if (currentPlayer === 1 && player1.positions.length < 3 && !player2.positions.includes(cellIndex) && !player1.positions.includes(cellIndex)) {
+                        this.innerHTML = `<img src="${player1.image}" alt="Pion 1">`;
+                        player1.positions.push(cellIndex);
+                        if (checkWin(player1.positions)) {
+                            statusDisplay.textContent = `${player1Name} a gagné !`;
+                            updateScore(1); 
+                            disableGrid();
+                        } else {
+                            currentPlayer = 2;
+                            if (player1.positions.length === 3 && player2.positions.length === 3) {
+                                movePhase = true;
+                            }
+                            updateStatus();
+                        }
+                    } else if (currentPlayer === 2 && player2.positions.length < 3 && !player1.positions.includes(cellIndex) && !player2.positions.includes(cellIndex)) {
+                        this.innerHTML = `<img src="${player2.image}" alt="Pion 2">`;
+                        player2.positions.push(cellIndex);
+                        if (checkWin(player2.positions)) {
+                            statusDisplay.textContent = `${player2Name} a gagné !`;
+                            updateScore(2); 
+                            disableGrid();
+                        } else {
+                            currentPlayer = 1;
+                            if (player1.positions.length === 3 && player2.positions.length === 3) {
+                                movePhase = true;
+                            }
+                            updateStatus();
+                        }
+                    }
+                } 
+                else {
+                    if (selectedCell) {
+                        selectedCell.classList.remove('selected');
+                    }
+
+                    if (currentPlayer === 1 && player1.positions.includes(cellIndex)) {
+                        this.classList.add('selected');
+                        selectedCell = this;
+                    } else if (currentPlayer === 2 && player2.positions.includes(cellIndex)) {
+                        this.classList.add('selected');
+                        selectedCell = this;
+                    } else if (selectedCell && !player1.positions.includes(cellIndex) && !player2.positions.includes(cellIndex)) {
+                        const previousIndex = parseInt(selectedCell.getAttribute('data-index'));
+                        selectedCell.innerHTML = '';
+                        selectedCell.classList.remove('selected');
+                        this.innerHTML = `<img src="${currentPlayer === 1 ? player1.image : player2.image}" alt="Pion ${currentPlayer}">`;
+
+                        if (currentPlayer === 1) {
+                            player1.positions = player1.positions.map(pos => pos === previousIndex ? cellIndex : pos);
+                            if (checkWin(player1.positions)) {
+                                statusDisplay.textContent = `${player1Name} a gagné !`;
+                                updateScore(1); 
+                                disableGrid();
+                            }
+                        } else {
+                            player2.positions = player2.positions.map(pos => pos === previousIndex ? cellIndex : pos);
+                            if (checkWin(player2.positions)) {
+                                statusDisplay.textContent = `${player2Name} a gagné !`;
+                                updateScore(2); 
+                                disableGrid();
+                            }
+                        }
+
+                        selectedCell = null;
+                        currentPlayer = currentPlayer === 1 ? 2 : 1;
+                        updateStatus();
+                    }
+                }
+            });
+        });
+
+        resetButton.addEventListener('click', function() {
+            grid.forEach(cell => {
+                cell.innerHTML = '';
+                cell.classList.remove('selected');
+            });
+            player1.positions = [];
+            player2.positions = [];
+            currentPlayer = Math.random() < 0.5 ? 1 : 2;
+            movePhase = false;
+            selectedCell = null;
+            statusDisplay.textContent = '';
+            updateStatus();
+        });
+
+        function disableGrid() {
+            grid.forEach(cell => {
+                cell.removeEventListener('click', this);
+            });
+        }
+    </script>
+<style>
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

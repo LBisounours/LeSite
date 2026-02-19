@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puissance 4 🔴🟡</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        buttons {
+        background-color: #432088;
+        color: #fff;
+        position: relative;
+        padding: 10px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: background-color 0.3s ease-in-out;
+        margin-left: -200px;
+        width: 100px;
+        height: 100px;
+        left: -105px;
+        top: -350px;
+    } 
+
+    buttons:hover {
+        background-color: #45a049;
+    }
+
+        #scoreboard {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+            margin-left: 20px;
+            padding: 10px;
+            border: 1px solid black ;
+            border-radius: 5px;
+            background-color: #6f94ea;;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+
+    <script>
+        const audio = document.getElementById('background-music');
+
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic);
+        }
+
+        document.body.addEventListener('click', playMusic);
+    </script>
+
+    <div id="start-screen">
+        <input type="text" id="player1" placeholder="Pseudo Joueur 1" required>
+        <input type="text" id="player2" placeholder="Pseudo Joueur 2" required>
+        <button onclick="startGame()">Lancer le jeu</button>
+    </div>
+
+    <div id="game-container" style="display: none;">
+        <div id="scoreboard">
+            <div id="score-player1">Joueur 1 (${player1}) : 0</div>
+            <div id="score-player2">Joueur 2 (${player2}) : 0</div>
+        </div>
+        <table>
+            <tr>
+                <td id="cell-0-0" onclick="placeToken(0)"><img class="arrow" src="Images/Fleche.png" alt="Flèche" /></td>
+                <td id="cell-0-1" onclick="placeToken(1)"><img class="arrow" src="Images/Fleche.png" alt="Flèche" /></td>
+                <td id="cell-0-2" onclick="placeToken(2)"><img class="arrow" src="Images/Fleche.png" alt="Flèche" /></td>
+                <td id="cell-0-3" onclick="placeToken(3)"><img class="arrow" src="Images/Fleche.png" alt="Flèche" /></td>
+                <td id="cell-0-4" onclick="placeToken(4)"><img class="arrow" src="Images/Fleche.png" alt="Flèche" /></td>
+                <td id="cell-0-5" onclick="placeToken(5)"><img class="arrow" src="Images/Fleche.png" alt="Flèche" /></td>
+                <td id="cell-0-6" onclick="placeToken(6)"><img class="arrow" src="Images/Fleche.png" alt="Flèche" /></td>
+            </tr>
+            <tr>
+                <td id="cell-1-0"></td>
+                <td id="cell-1-1"></td>
+                <td id="cell-1-2"></td>
+                <td id="cell-1-3"></td>
+                <td id="cell-1-4"></td>
+                <td id="cell-1-5"></td>
+                <td id="cell-1-6"></td>
+            </tr>
+            <tr>
+                <td id="cell-2-0"></td>
+                <td id="cell-2-1"></td>
+                <td id="cell-2-2"></td>
+                <td id="cell-2-3"></td>
+                <td id="cell-2-4"></td>
+                <td id="cell-2-5"></td>
+                <td id="cell-2-6"></td>
+            </tr>
+            <tr>
+                <td id="cell-3-0"></td>
+                <td id="cell-3-1"></td>
+                <td id="cell-3-2"></td>
+                <td id="cell-3-3"></td>
+                <td id="cell-3-4"></td>
+                <td id="cell-3-5"></td>
+                <td id="cell-3-6"></td>
+            </tr>
+            <tr>
+                <td id="cell-4-0"></td>
+                <td id="cell-4-1"></td>
+                <td id="cell-4-2"></td>
+                <td id="cell-4-3"></td>
+                <td id="cell-4-4"></td>
+                <td id="cell-4-5"></td>
+                <td id="cell-4-6"></td>
+            </tr>
+            <tr>
+                <td id="cell-5-0"></td>
+                <td id="cell-5-1"></td>
+                <td id="cell-5-2"></td>
+                <td id="cell-5-3"></td>
+                <td id="cell-5-4"></td>
+                <td id="cell-5-5"></td>
+                <td id="cell-5-6"></td>
+            </tr>
+        </table>
+        <div id="turn-message" class="hidden"></div> 
+        <div id="winner-message" class="hidden"></div>
+        <buttons onclick="resetGame()">Réinitialiser la partie</buttons>
+    </div>
+
+    <script>
+        let currentPlayer = '';
+        let player1, player2;
+        let score1 = 0, score2 = 0; 
+        const columns = [5, 5, 5, 5, 5, 5, 5];
+
+        function startGame() {
+            player1 = document.getElementById('player1').value;
+            player2 = document.getElementById('player2').value;
+            if (!player1 || !player2) {
+                alert("Veuillez entrer les pseudos des deux joueurs.");
+                return;
+            }
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            updateScoreboard();
+
+            currentPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
+            updateTurnMessage();
+        }
+
+        function placeToken(column) {
+            if (columns[column] < 0) {
+                alert("Colonne pleine !");
+                return;
+            }
+
+            const row = columns[column];
+            const cell = document.getElementById(`cell-${row}-${column}`);
+            const token = document.createElement('div');
+            token.className = `token ${currentPlayer}`;
+            cell.appendChild(token);
+
+            token.style.bottom = '100%';
+            setTimeout(() => {
+                token.style.bottom = '0';
+            }, 10);
+
+            columns[column]--;
+
+            if (checkWin(row, column)) {
+                const winner = currentPlayer === 'red' ? player1 : player2;
+                document.getElementById('winner-message').innerText = `${winner} a gagné !`;
+                document.getElementById('winner-message').classList.remove('hidden');
+                updateScore(currentPlayer);
+                disableGame();
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+            updateTurnMessage();
+        }
+
+        function checkWin(row, column) {
+            return checkDirection(row, column, 1, 0) ||
+                   checkDirection(row, column, 0, 1) || 
+                   checkDirection(row, column, 1, 1) ||
+                   checkDirection(row, column, 1, -1); 
+        }
+
+        function checkDirection(row, column, rowDir, colDir) {
+            let count = 1;
+
+            count += countInDirection(row, column, rowDir, colDir);
+            count += countInDirection(row, column, -rowDir, -colDir);
+
+            return count >= 4;
+        }
+
+        function resetGame() {
+            for (let i = 0; i < columns.length; i++) {
+                columns[i] = 5;
+                for (let j = 0; j < 6; j++) {
+                    const cell = document.getElementById(`cell-${j}-${i}`);
+                    cell.innerHTML = ''; 
+                }
+            }
+            document.getElementById('winner-message').innerText = ''; 
+            document.getElementById('winner-message').classList.add('hidden');
+            currentPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
+            updateTurnMessage();
+            enableGame();
+        }
+
+        function countInDirection(row, column, rowDir, colDir) {
+            let count = 0;
+            let r = row + rowDir;
+            let c = column + colDir;
+
+            while (r >= 0 && r < 6 && c >= 0 && c < 7) {
+                const cell = document.getElementById(`cell-${r}-${c}`);
+                if (cell.children.length === 0 || cell.children[0].className !== `token ${currentPlayer}`) {
+                    break;
+                }
+                count++;
+                r += rowDir;
+                c += colDir;
+            }
+
+            return count;
+        }
+
+        function updateTurnMessage() {
+            const message = currentPlayer === 'red' ? `${player1} c'est à toi !` : `${player2} c'est à toi !`;
+            document.getElementById('turn-message').innerText = message;
+            document.getElementById('turn-message').classList.remove('hidden');
+        }
+
+        function disableGame() {
+            for (let i = 0; i < 7; i++) {
+                const column = document.getElementById(`cell-0-${i}`);
+                column.onclick = null; 
+            }
+        }
+
+        function enableGame() {
+            for (let i = 0; i < 7; i++) {
+                const column = document.getElementById(`cell-0-${i}`);
+                column.onclick = () => placeToken(i); 
+            }
+        }
+
+        function updateScore(winner) {
+            if (winner === 'red') {
+                score1++;
+            } else {
+                score2++;
+            }
+            updateScoreboard();
+        }
+
+        function updateScoreboard() {
+            document.getElementById('score-player1').innerText = `${player1} : ${score1}`;
+            document.getElementById('score-player2').innerText = `${player2} : ${score2}`;
+        }
+    </script>
+
+
+<style>
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

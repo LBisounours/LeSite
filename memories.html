@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mémory 🃏</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        #start-screen {
+            margin-bottom: 100px;
+        }
+
+        #game-container {
+            position: relative;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(10, 100px);
+            grid-gap: 10px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #6f94ea;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        #failed-attempts {
+            position: relative;
+            right: -900px;
+            width: 200px; 
+            height: 30px;
+            font-size: 18px;
+            background-color: #6f94ea;
+            border-radius: 5px;
+            padding : 8px;
+            color: white;
+        }
+
+        #timer {
+            position: relative;
+            top: 46px;
+            right: -670px;
+            width: 200px; 
+            height: 30px;
+            font-size: 18px;
+            background-color: #6f94ea;
+            border-radius: 5px;
+            padding : 8px;
+            color: white;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            cursor: pointer;
+            perspective: 1000px;
+            transition: transform 0.3s;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            border-radius: 8px;
+        }
+
+        .card .back {
+            background-color: #302e2e;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .flipped {
+            transform: rotateY(180deg);
+        }
+
+        #score-board {
+            margin-top: 20px;
+            background-color: #6f94ea;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 120px;
+        }
+
+        h2, h3 {
+            margin: 10px 0;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #reset-button {
+            position: absolute;
+            left: 20px;
+            top: 100px;
+            background-color: #dc3545;
+        }
+
+        #reset-button:hover {
+            background-color: #c82333;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            font-size: 16px;
+            width: 80%;
+        }
+    </style>
+    <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+    <script>
+        const audio = document.getElementById('background-music');
+
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic);
+        }
+
+        document.body.addEventListener('click', playMusic);
+    </script>
+</head>
+
+<body>
+    <div id="start-screen">
+        <h1>Bienvenue au jeu de Mémory</h1>
+        <label for="mode">Mode de jeu :</label>
+        <select id="mode" onchange="togglePlayerOptions()">
+            <option value="solo">Solo</option>
+            <option value="multi">Multijoueur</option>
+        </select>
+        <div id="player-options" style="display:none;">
+            <label for="player-count">Nombre de joueurs :</label>
+            <input type="number" id="player-count" min="2" max="4" value="2" onchange="showPlayerNames()">
+            <div id="player-names"></div>
+        </div>
+        <label for="difficulty">Difficulté :</label>
+        <select id="difficulty">
+            <option value="facile">Facile (10 paires)</option>
+            <option value="moyen">Moyen (20 paires)</option>
+            <option value="difficile">Difficile (30 paires)</option>
+        </select>
+        <label for="theme">ㅤ Thème des cartes :</label>
+        <select id="theme">
+            <option value="Memo1">Pokémon</option>
+            <option value="Memo2">Jeux Vidéo</option>
+            <option value="Memo3">Fortnite</option>
+            <option value="Memo4">Anime</option>
+            <option value="Memo6">Tout</option>
+        </select>
+        <button onclick="startGame()">Lancer la partie</button>
+    </div>
+
+    <div id="game-container" style="display:none;">
+        <h2 id="current-player">ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤC'est le tour de <span></span></h2>
+        <button id="reset-button" onclick="resetGame()">Recommencer la partie</button>
+        <div id="timer">Temps : 0s</div>
+        <div id="failed-attempts">Échecs : 0</div>
+        <div id="game-board"></div>
+        <div id="score-board"></div>
+    </div>
+    <div id="timer">Temps : 0s</div>
+
+    <script>
+        let totalPairs;
+        let players = [];
+        let currentPlayer = 0;
+        let scores = [];
+        let pairsFound = 0;
+        let cards = [];
+        let matchedPairs = [];
+        let isChecking = false;
+        let timeElapsed = 0;
+        let failedAttempts = 0;
+        let timerInterval;
+
+        function togglePlayerOptions() {
+            const mode = document.getElementById('mode').value;
+            const playerOptions = document.getElementById('player-options');
+            playerOptions.style.display = mode === 'multi' ? 'block' : 'none';
+            if (mode === 'multi') showPlayerNames();
+        }
+
+        function showPlayerNames() {
+            const playerCount = document.getElementById('player-count').value;
+            const playerNames = document.getElementById('player-names');
+            playerNames.innerHTML = '';
+            for (let i = 0; i < playerCount; i++) {
+                playerNames.innerHTML += `<label for="player${i}">Nom du Joueur ${i + 1} :</label>
+                                          <input type="text" id="player${i}" placeholder="Joueur ${i + 1}"><br>`;
+            }
+        }
+
+        function startGame() {
+            const mode = document.getElementById('mode').value;
+            const difficulty = document.getElementById('difficulty').value;
+            const theme = document.getElementById('theme').value;
+
+            totalPairs = difficulty === 'facile' ? 10 : difficulty === 'moyen' ? 20 : 30;
+
+            players = mode === 'multi' ? Array.from({ length: document.getElementById('player-count').value }, (_, i) => {
+                return document.getElementById(`player${i}`).value || `Joueur ${i + 1}`;
+            }) : ['Solo'];
+
+            timeElapsed = 0;
+            failedAttempts = 0;
+            document.getElementById('timer').textContent = `Temps : ${timeElapsed}s`;
+            document.getElementById('failed-attempts').textContent = `Échecs : ${failedAttempts}`;
+    
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                document.getElementById('timer').textContent = `Temps : ${timeElapsed}s`;
+            }, 1000);
+
+            scores = new Array(players.length).fill(0);
+            currentPlayer = 0;
+            pairsFound = 0;
+            matchedPairs = [];
+
+            shuffleCards(theme);
+            displayGameBoard();
+            displayScoreBoard();
+            updatePlayerTurn();
+
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+        }
+
+        function resetGame() {
+            clearInterval(timerInterval);
+            document.getElementById('start-screen').style.display = 'block';
+            document.getElementById('game-container').style.display = 'none';
+        }
+
+
+        function shuffleCards(theme) {
+            const themeCardCounts = {
+                Memo1: 730, //Pokemon
+                Memo2: 30, // Jeux
+                Memo3: 192, // Fortnite
+                Memo4: 99, // Anime/manga/film/série/dessin animé
+                Memo6: 192, //Tout
+            };
+
+            const maxCards = themeCardCounts[theme] || 0;
+            const availableImages = [];
+
+            for (let i = 1; i <= maxCards; i++) {
+                availableImages.push(`Images/${theme}/mem${i}.png`);
+            }
+
+            const selectedImages = [];
+            while (selectedImages.length < totalPairs) {
+                const randomIndex = Math.floor(Math.random() * availableImages.length);
+                const selectedImage = availableImages[randomIndex];
+                if (!selectedImages.includes(selectedImage)) {
+                    selectedImages.push(selectedImage);
+                }
+            }
+
+            cards = [];
+            selectedImages.forEach(image => {
+                cards.push(image, image); 
+            });
+            cards.sort(() => 0.5 - Math.random());
+        }
+
+        function displayGameBoard() {
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.innerHTML = '';
+            cards.forEach((card, index) => {
+                gameBoard.innerHTML += `<div class="card" data-index="${index}" onclick="flipCard(this)">
+                                          <img src="Images/back.png" class="back">
+                                          <img src="${card}" class="front" style="display:none;">
+                                        </div>`;
+            });
+        }
+
+        function displayScoreBoard() {
+            const scoreBoard = document.getElementById('score-board');
+            scoreBoard.innerHTML = '<h3>Tableau des scores</h3>';
+            players.forEach((player, index) => {
+                scoreBoard.innerHTML += `<p>${player}: ${scores[index]} paires trouvées</p>`;
+            });
+        }
+
+        function updatePlayerTurn() {
+            const currentPlayerDisplay = document.getElementById('current-player').querySelector('span');
+            currentPlayerDisplay.textContent = players[currentPlayer];
+        }
+
+        function flipCard(card) {
+            if (isChecking || card.classList.contains('flipped')) return;
+            card.classList.add('flipped');
+            const index = card.getAttribute('data-index');
+            card.querySelector('.front').style.display = 'block';
+            card.querySelector('.back').style.display = 'none';
+
+            if (matchedPairs.length === 0) {
+                matchedPairs.push(index);
+            } else {
+                isChecking = true;
+                setTimeout(() => checkMatch(card, matchedPairs.pop()), 1000);
+            }
+        }
+
+        function checkMatch(card1, index1) {
+            const card2 = document.querySelector(`.card[data-index='${index1}']`);
+            if (card1.querySelector('.front').src === card2.querySelector('.front').src) {
+                scores[currentPlayer]++;
+                pairsFound++;
+                displayScoreBoard();
+                if (pairsFound === totalPairs) {
+                    clearInterval(timerInterval);
+                    alert(`Partie terminée ! ${players[currentPlayer]} a gagné en ${timeElapsed}s avec ${failedAttempts} échecs !`);
+                    resetGame();
+                }
+            } else {
+                failedAttempts++;
+                document.getElementById('failed-attempts').textContent = `Échecs : ${failedAttempts}`;
+                card1.classList.remove('flipped');
+                card1.querySelector('.front').style.display = 'none';
+                card1.querySelector('.back').style.display = 'block';
+                card2.classList.remove('flipped');
+                card2.querySelector('.front').style.display = 'none';
+                card2.querySelector('.back').style.display = 'block';
+            }
+            currentPlayer = (currentPlayer + 1) % players.length;
+            updatePlayerTurn();
+            isChecking = false;
+        }
+
+    </script>
+<style>
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Le Calendrier.. 🗓️</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/png" href="Images/TheStars.png">
+    </head>
+<body>
+    <h1>Entrer Une Date :</h1>
+    <h3>(Certains éléments peuvent mettre du temps à charger..)</h3>
+    <form id="dateForm">
+        <label for="day">Jour:</label>
+        <input type="number" id="day" name="day" min="1" max="31" required>
+        <label for="month">Mois:</label>
+        <input type="number" id="month" name="month" min="1" max="12" required>
+        <button type="submit">Envoyer</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('dateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const day = document.getElementById('day').value.padStart(2, '0');
+            const month = document.getElementById('month').value.padStart(2, '0');
+            const dateKey = `${day}-${month}`;
+
+            const basePath = 'Images/'; 
+            const imageFormats = ['jpg', 'jpeg', 'png', 'gif'];
+            const videoFormats = ['mp4', 'webm', 'ogg'];
+            let found = false;
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            function testImages() {
+                for (const format of imageFormats) {
+                    const imgPath = `${basePath}${dateKey}.${format}`;
+                    const img = new Image();
+                    img.src = imgPath;
+                    img.onload = function() {
+                        if (!found) {
+                            resultDiv.innerHTML = `<img src="${imgPath}" alt="Image for ${dateKey}">`;
+                            found = true;
+                        }
+                    };
+                    img.onerror = function() {
+                        if (!found) {
+                            testVideos()
+                        }
+                    };
+                    if (found) break;
+                }
+            }
+
+            function testVideos() {
+    for (const format of videoFormats) {
+        const videoPath = `${basePath}${dateKey}.${format}`;
+        const video = document.createElement('video');
+        video.controls = true;
+
+        if (!found) resultDiv.innerHTML = '';
+
+        const source = document.createElement('source');
+        source.src = videoPath;
+        source.type = `video/${format}`;
+        video.appendChild(source);
+
+        video.oncanplay = function() {
+            if (!found) {
+                resultDiv.innerHTML = ''; 
+                resultDiv.appendChild(video); 
+                video.play();
+                found = true; 
+            }
+        };
+
+        video.onerror = function() {
+            if (!found) {
+                resultDiv.innerHTML = "Aucune image ou vidéo trouvée pour cette date.";
+            }
+        };
+
+        if (!found) {
+            video.load();
+        }
+    }
+}
+
+
+            testImages();
+        });
+    </script>
+</body>
+<style>
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="Date.html">Les Dates..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

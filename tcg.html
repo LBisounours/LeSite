@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokémonGo 👾</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        .booster {
+            display: inline-block;
+            margin: 20px;
+            cursor: pointer;
+        }
+        .booster img {
+            width: 200px;
+            transition: transform 0.3s;
+        }
+        .booster img:hover {
+            transform: scale(1.1);
+        }
+        #carteEnGrand {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        #carteEnGrand img {
+            width: 300px;
+            max-height: 80%;
+            border: 5px solid white;
+            border-radius: 10px;
+        }
+        .cartes-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            margin-bottom: 100px;
+        }
+        .carte-summary {
+            margin: 10px;
+            text-align: center;
+            position: relative;
+        }
+        .carte-summary img {
+            width: 100px;
+            height: 140px;
+            object-fit: cover;
+        }
+        .compteur {
+            font-size: 0.9em;
+            color: #fffbfb;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #ffffff;
+        }
+        .stars {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            margin-top: 10px;
+        }
+        .rarity-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* Ajout pour le logo sous la carte en cours */
+        .current-card {
+            position: relative;
+        }
+        .current-card .rarity-logo {
+            position: absolute;
+            bottom: -60px; /* Placer sous la carte */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px; /* Taille réduite */
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ouverture de Booster Pokémon</h1>
+    <p>Cliquez sur un booster pour l'ouvrir et découvrir vos cartes !</p>
+    <div class="booster">
+        <img src="Images/TCG/booster.png" alt="Booster Pokémon" id="booster">
+    </div>
+    <div id="carteEnGrand">
+        <img id="carteAffichee" src="" alt="Carte Pokémon">
+    </div>
+    <div class="message" id="message"></div>
+    <div class="cartes-container" id="cartesContainer"></div>
+
+    <script>
+        // Configuration des probabilités et des cartes par rareté
+        const rarities = [
+            { folder: "Images/TCG/PokeR1/", chance: 100, count: 102, logo: "R1.png" },
+            { folder: "Images/TCG/PokeR2/", chance: 90, count: 68, logo: "R2.png" },
+            { folder: "Images/TCG/PokeR3/", chance: 5, count: 41, logo: "R3.png" },
+            { folder: "Images/TCG/PokeR4/", chance: 1.666, count: 15, logo: "R4.png" },
+            { folder: "Images/TCG/PokeR5/", chance: 2.572, count: 24, logo: "R5.png" },
+            { folder: "Images/TCG/PokeR6/", chance: 0.500, count: 29, logo: "R6.png" },
+            { folder: "Images/TCG/PokeR7/", chance: 0.222, count: 4, logo: "R7.png" },
+            { folder: "Images/TCG/PokeR8/", chance: 0.040, count: 5, logo: "R8.png" }
+        ];
+
+        const booster = document.getElementById("booster");
+        const cartesContainer = document.getElementById("cartesContainer");
+        const message = document.getElementById("message");
+        const carteEnGrand = document.getElementById("carteEnGrand");
+        const carteAffichee = document.getElementById("carteAffichee");
+
+        let cartesTotales = {}; // Conserve l'historique des cartes obtenues
+        let cartes = [];
+        let currentIndex = 0;
+
+        booster.addEventListener("click", ouvrirBooster);
+        carteEnGrand.addEventListener("click", afficherCarteSuivante);
+
+        function ouvrirBooster() {
+            message.textContent = "Ouverture du booster...";
+            cartes = [];
+            currentIndex = 0;
+
+            setTimeout(() => {
+                cartes = ouvrirCartes();
+                afficherCarteSuivante();
+            }, 1000); // Délai pour simuler l'ouverture
+        }
+
+        function ouvrirCartes() {
+            const result = [];
+            for (let i = 0; i < 5; i++) {
+                let carte = null;
+                while (!carte) {
+                    carte = tirerCarte();
+                }
+                result.push(carte);
+            }
+            return result;
+        }
+
+        function tirerCarte() {
+            const totalChance = rarities.reduce((acc, rarity) => acc + rarity.chance, 0);
+            const random = Math.random() * totalChance;
+
+            let cumulativeChance = 0;
+
+            for (const rarity of rarities) {
+                cumulativeChance += rarity.chance;
+                if (random <= cumulativeChance) {
+                    const randomIndex = Math.floor(Math.random() * rarity.count) + 1;
+                    return { 
+                        carte: `${rarity.folder}poke${randomIndex}.webp`,
+                        logo: rarity.logo,
+                        rarity: rarity
+                    };
+                }
+            }
+
+            return null; // Si aucune carte n'est tirée (peu probable)
+        }
+
+        function afficherCarteSuivante() {
+            if (currentIndex < cartes.length) {
+                const currentCard = cartes[currentIndex];
+                carteAffichee.src = currentCard.carte;
+                carteEnGrand.style.display = "flex";
+
+                // Ajouter l'élément de la carte avec le logo en dessous
+                const carteElement = document.createElement("div");
+                carteElement.classList.add("carte-summary", "current-card");
+
+                const img = document.createElement("img");
+                img.src = currentCard.carte;
+                carteElement.appendChild(img);
+
+                // Afficher le logo de rareté sous la carte en cours d'ouverture
+                const logoElement = document.createElement("img");
+                logoElement.src = `Images/TCG/${currentCard.logo}`;
+                logoElement.classList.add("rarity-logo");
+                carteElement.appendChild(logoElement);
+
+                cartesContainer.appendChild(carteElement);
+                currentIndex++;
+            } else {
+                carteEnGrand.style.display = "none";
+                mettreAJourResumeCartes();
+            }
+        }
+
+        function mettreAJourResumeCartes() {
+            cartes.forEach(carte => {
+                cartesTotales[carte.carte] = (cartesTotales[carte.carte] || 0) + 1;
+            });
+
+            cartesContainer.innerHTML = "";
+            for (const [carte, count] of Object.entries(cartesTotales)) {
+                const carteElement = document.createElement("div");
+                carteElement.classList.add("carte-summary");
+
+                const img = document.createElement("img");
+                img.src = carte;
+
+                const compteur = document.createElement("div");
+                compteur.classList.add("compteur");
+                compteur.textContent = count > 1 ? `${count} exemplaires` : "1 exemplaire";
+
+                carteElement.appendChild(img);
+                carteElement.appendChild(compteur);
+                cartesContainer.appendChild(carteElement);
+            }
+        }
+    </script>
+    <body>
+        <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+    
+        <script>
+            const audio = document.getElementById('background-music');
+    
+            function playMusic() {
+                audio.play().catch(error => {
+                    console.error('Erreur lors de la lecture de la musique:', error);
+                });
+                document.body.removeEventListener('click', playMusic);
+            }
+    
+            document.body.addEventListener('click', playMusic);
+        </script>
+    </body>
+<style>
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+
+    </html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu des Vis</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="Images/TheStars.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-area {
+            position: relative;
+            width: 90vw;
+            height: 60vh;
+            max-width: 600px;
+            border: 2px solid red;
+            background: url('Images/fondvis.png') center/cover no-repeat;
+            margin-bottom: 10px;
+            touch-action: manipulation;
+        }
+        .vis {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: rgb(53, 50, 50);
+            text-shadow: 1px 1px 2px black;
+            transition: transform 0.4s ease, left 0.5s ease, top 0.5s ease;
+        }
+        .vis.wrong { animation: shake 0.3s ease; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        #boite-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 150px;
+        }
+        .boite {
+            width: 140px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid black;
+            padding: 10px;
+        }
+        .boite span {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+        .boite .contenu {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .boite .contenu .slot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px dashed rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.3);
+            font-size: 22px;
+            font-weight: bold;
+            color: black;
+        }
+        .boite .contenu .filled { border: none; }
+    </style>
+</head>
+<body>
+
+    <div id="game-area"></div>
+
+    <div id="boite-container"></div>
+
+    <audio id="vis-sound" src="Images/Son/vis.mp3"></audio>
+
+    <script>
+        const couleurs = {
+            "red": "Rouge",
+            "yellow": "Jaune",
+            "purple": "Violet",
+            "pink": "Rose",
+            "green": "Vert",
+            "orange": "Orange",
+            "blue": "Bleu"
+        };
+
+        let couleursRestantes = [];
+        let boiteActive = null;
+        let visRestantes = 0;
+        let isBoiteActive = false;
+        let isCooldown = false;  // Variable pour gérer le cooldown entre les clics
+
+        function initGame() {
+            document.getElementById("game-area").innerHTML = "";
+            document.getElementById("boite-container").innerHTML = "";
+            couleursRestantes = Object.keys(couleurs).sort(() => Math.random() - 0.5);
+            visRestantes = 0;
+            spawnVis();
+            afficherNouvelleBoite();
+        }
+
+        function afficherNouvelleBoite() {
+            if (couleursRestantes.length === 0) {
+                setTimeout(initGame, 1000);
+                return;
+            }
+
+            if (isBoiteActive) return;
+
+            let couleur = couleursRestantes.shift();
+            let boite = document.createElement("div");
+            boite.classList.add("boite");
+            boite.style.backgroundColor = couleur;
+            boite.dataset.couleur = couleur;
+            boite.dataset.count = 0;
+
+            let slots = '<div class="contenu">';
+            for (let i = 0; i < 3; i++) {
+                slots += '<div class="slot">+</div>';
+            }
+            slots += '</div>';
+
+            boite.innerHTML = `<span>${couleurs[couleur]}</span>${slots}`;
+            document.getElementById("boite-container").appendChild(boite);
+            boiteActive = boite;
+            isBoiteActive = true;
+        }
+
+        function spawnVis() {
+            const gameArea = document.getElementById("game-area");
+            gameArea.innerHTML = "";
+            visRestantes = 0;
+
+            let placedPositions = [];
+
+            Object.keys(couleurs).forEach(couleur => {
+                for (let i = 0; i < 3; i++) {
+                    let vis = document.createElement("div");
+                    vis.classList.add("vis");
+                    vis.style.backgroundColor = couleur;
+                    vis.dataset.couleur = couleur;
+                    vis.innerText = "+";
+
+                    let x, y, overlapping;
+                    do {
+                        overlapping = false;
+                        x = Math.random() * (gameArea.clientWidth - 50);
+                        y = Math.random() * (gameArea.clientHeight - 50);
+
+                        for (let pos of placedPositions) {
+                            let dx = pos.x - x;
+                            let dy = pos.y - y;
+                            if (Math.sqrt(dx * dx + dy * dy) < 45) {
+                                overlapping = true;
+                                break;
+                            }
+                        }
+                    } while (overlapping);
+
+                    placedPositions.push({ x, y });
+
+                    vis.style.left = `${x}px`;
+                    vis.style.top = `${y}px`;
+
+                    vis.addEventListener("click", () => handleVisClick(vis));
+                    gameArea.appendChild(vis);
+                    visRestantes++;
+                }
+            });
+        }
+
+        function handleVisClick(vis) {
+            if (isCooldown) return;  // Si le cooldown est activé, on ignore le clic
+
+            isCooldown = true;  // Active le cooldown
+
+            setTimeout(() => {
+                isCooldown = false;  // Désactive le cooldown après 1 seconde
+            }, 500);  // Timeout de 1 seconde, ajustez selon le besoin
+
+            let couleur = vis.dataset.couleur;
+
+            if (boiteActive && boiteActive.dataset.couleur === couleur) {
+                let slots = boiteActive.querySelectorAll(".slot:not(.filled)");
+                if (slots.length > 0) {
+                    let slot = slots[0];
+                    slot.classList.add("filled");
+                    slot.style.backgroundColor = couleur;
+                    slot.innerText = "+";
+                    boiteActive.dataset.count++;
+
+                    let boiteRect = boiteActive.getBoundingClientRect();
+                    let slotRect = slot.getBoundingClientRect();
+                    let visRect = vis.getBoundingClientRect();
+
+                    let offsetX = slotRect.left - visRect.left;
+                    let offsetY = slotRect.top - visRect.top;
+
+                    vis.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                    vis.style.transition = "transform 0.5s ease";
+
+                    let sound = document.getElementById("vis-sound");
+                    sound.currentTime = 0;
+                    sound.play();
+
+                    setTimeout(() => {
+                        vis.remove();
+                        visRestantes--;
+
+                        if (boiteActive.dataset.count == 3) {
+                            setTimeout(() => {
+                                boiteActive.remove();
+                                boiteActive = null;
+                                isBoiteActive = false;
+                                afficherNouvelleBoite();
+                            }, 500);
+                        }
+                    }, 500);
+                }
+            } else {
+                vis.classList.add("wrong");
+                setTimeout(() => vis.classList.remove("wrong"), 300);
+            }
+        }
+
+        initGame();
+    </script>
+    <audio id="background-music" src="Images/sonfond.mp3" loop></audio>
+
+    <script>
+        const audio = document.getElementById('background-music');
+
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('Erreur lors de la lecture de la musique:', error);
+            });
+            document.body.removeEventListener('click', playMusic);
+        }
+
+        document.body.addEventListener('click', playMusic);
+    </script>
+
+    <style>
+
+    footer {
+        width: 100%;
+        background-color: #333;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 5px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999; /* S'assurer qu'il est en bas */
+    }
+
+    .footer-left, .footer-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-left a, .footer-right .dropdown-button {
+        text-decoration: none;
+        color: white;
+        background-color: #6f94ea;
+        padding: 10px;
+        border-radius: 20px;
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    .footer-left a:hover, .footer-right .dropdown-button:hover {
+        background-color: #de2828;
+    }
+
+    .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+    }
+
+    .profile-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-pics {
+        margin-left: 320px;
+        width: 50px;
+        height: 50px;
+        border-radius: 100%;
+        margin-right: 5px;
+    }
+    
+    .pseudos {
+        margin-right: 420px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+        top: -14px
+    }
+
+    /* Styles pour le menu déroulant */
+    .dropdown {
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #6f94ea;
+        min-width: 100px;
+        border-radius: 10px;
+        z-index: 1000;  /* Assure que le menu est en haut du contenu */
+        bottom: 95%; /* Met le menu déroulant au-dessus du bouton */
+        left: -60px;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #de2828;
+        border-radius: 10px;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+        border-radius: 10px;
+    }
+
+</style>
+
+<body>
+    <div class="main-content">
+        <!-- Your content here -->
+    </div>
+
+    <footer>
+        <!-- Left Section (Accueil / Calendrier) -->
+        <div class="footer-left">
+            <a href="index.html">Accueil</a>
+            <a href="LeSite.html">Le Calendrier..</a>
+        </div>
+
+        <!-- Center Section (Profile) -->
+        <div class="footer-center">
+            <div class="profile-container">
+                <a href="https://www.twitch.tv/le_bisounours_">
+                    <img src="Images/Bisou.jpg" alt="Bisou" class="profile-pics">
+                    <span class="pseudos">💜ℓє_вɨsღµиღµʀs💜</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Section (Autre / Jeux) -->
+        <div class="footer-right">
+            <div class="dropdown">
+                <button class="dropdown-button">Autre</button>
+                <div class="dropdown-content">
+                    <a href="chaine.html">Les Chaines</a>
+                    <a href="Noel.html">Décompte</a>
+                    <a href="musique.html">Musique</a>
+                    <a href="clock.html">Alarme/Chrono</a>
+                    <a href="pf.html">Pile ou Face</a>
+                    <a href="roulette.html">La Roulette</a>
+                    <a href="cps.html">Test CPS</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropdown-button">Jeux</button>
+                <div class="dropdown-content">
+                    <a href="minecraft.html">Serveur MC</a>
+                    <a href="tcg.html">TCG Card</a>
+                    <a href="Morpion.html">Morpion</a>
+                    <a href="Puissance4.html">Puissance4</a>
+                    <a href="memories.html">Memory</a>
+                    <a href="pokemon.html">PokemonGo</a>
+                    <a href="clicker.html">PokeCliker</a>
+                    <a href="pendu.html">JeuDuPendu</a>
+                    <a href="geometriedash.html">GeometryDash</a>
+                    <a href="chifumi.html">ChiFuMi</a>
+                    <a href="vis.html">Vis</a>
+                    <a href="Bientot.html">A venir..</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
